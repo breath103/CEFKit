@@ -5,7 +5,13 @@ let package = Package(
     name: "CEFKit",
     platforms: [.macOS(.v12)],
     products: [
+        // Full surface for the host app — links Chromium Embedded Framework.
         .library(name: "CEFKit", targets: ["CEFKit"]),
+        // Minimal surface for helper sub-process executables. Does NOT pull in
+        // the CCEF binary framework, so SPM/clang doesn't bake a host-shaped
+        // @executable_path/../Frameworks/... load command into the helper.
+        // The helper dlopens the framework at runtime via CefScopedLibraryLoader.
+        .library(name: "CEFKitHelper", targets: ["CEFKitHelper"]),
     ],
     targets: [
         // Prebuilt Chromium Embedded Framework, downloaded as XCFramework.
@@ -57,6 +63,13 @@ let package = Package(
             name: "CEFKit",
             dependencies: ["CEFViewObjC", "CCEF"],
             path: "Sources/CEFKit"
+        ),
+
+        // Helper sub-process facade — no CCEF dep.
+        .target(
+            name: "CEFKitHelper",
+            dependencies: ["CEFViewObjC"],
+            path: "Sources/CEFKitHelper"
         ),
 
         .testTarget(
