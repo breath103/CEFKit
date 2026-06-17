@@ -39,7 +39,10 @@ let package = Package(
                 .define("__STDC_FORMAT_MACROS"),
                 .define("USING_CEF_SHARED"),
                 .define("WRAPPING_CEF_SHARED"),
-                .unsafeFlags(["-Wno-undefined-var-template", "-Wno-deprecated-declarations"]),
+                // NB: don't add unsafeFlags here — SPM rejects packages that
+                // consume binaryTargets via URL if any transitively-linked
+                // target uses unsafeFlags. We tolerate the -Wundefined-var-template
+                // warnings (5 of them) on first build instead.
             ]
         ),
 
