@@ -6,11 +6,15 @@
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_helpers.h"
 
+// Redeclare the public-readonly state-mirror properties as readwrite inside
+// the class so synthesized setters fire KVO automatically. Public callers
+// still see them as readonly via the header.
 @interface CEFView ()
-- (void)_onTitleChange:(nullable NSString*)title;
-- (void)_onLoadingStateChange:(BOOL)isLoading
-                    canGoBack:(BOOL)canGoBack
-                 canGoForward:(BOOL)canGoForward;
+@property (nonatomic, copy, nullable) NSString* title;
+@property (nonatomic, assign) BOOL isLoading;
+@property (nonatomic, assign) BOOL canGoBack;
+@property (nonatomic, assign) BOOL canGoForward;
+
 - (void)_onLoadStartURL:(nullable NSURL*)url;
 - (void)_onLoadEndURL:(nullable NSURL*)url statusCode:(int)code;
 - (void)_onLoadErrorURL:(nullable NSURL*)url
@@ -70,13 +74,12 @@ class _CEFClient : public CefClient,
 
   void OnLoadingStateChange(CefRefPtr<CefBrowser>, bool isLoading,
                             bool canGoBack, bool canGoForward) override {
-    is_loading_ = isLoading;
-    can_back_ = canGoBack;
-    can_forward_ = canGoForward;
     __weak CEFView* o = owner_;
     BOOL il = isLoading, cb = canGoBack, cf = canGoForward;
     dispatch_async(dispatch_get_main_queue(), ^{
-      [o _onLoadingStateChange:il canGoBack:cb canGoForward:cf];
+      o.isLoading = il;
+      o.canGoBack = cb;
+      o.canGoForward = cf;
     });
   }
 
@@ -119,26 +122,17 @@ class _CEFClient : public CefClient,
 
   void OnTitleChange(CefRefPtr<CefBrowser>, const CefString& title) override {
     NSString* t = [NSString stringWithUTF8String:title.ToString().c_str()];
-    title_ = t;
     __weak CEFView* o = owner_;
-    dispatch_async(dispatch_get_main_queue(), ^{ [o _onTitleChange:t]; });
+    dispatch_async(dispatch_get_main_queue(), ^{ o.title = t; });
   }
 
   CefRefPtr<CefBrowser> browser() const { return browser_; }
-  bool isLoading() const { return is_loading_; }
-  bool canGoBack() const { return can_back_; }
-  bool canGoForward() const { return can_forward_; }
-  NSString* title() const { return title_; }
 
  private:
   __weak CEFView* owner_;
   CefRefPtr<CefBrowser> browser_;
   CefRefPtr<_CEFDevToolsObserver> devtools_;
   CefRefPtr<CefRegistration> devtools_registration_;
-  bool is_loading_ = false;
-  bool can_back_ = false;
-  bool can_forward_ = false;
-  NSString* title_ = nil;
   IMPLEMENT_REFCOUNTING(_CEFClient);
   DISALLOW_COPY_AND_ASSIGN(_CEFClient);
 };
@@ -181,19 +175,12 @@ class _CEFClient : public CefClient,
   }
 }
 
-#pragma mark - State
-
-- (BOOL)canGoBack    { return _client ? _client->canGoBack()    : NO; }
-- (BOOL)canGoForward { return _client ? _client->canGoForward() : NO; }
-- (BOOL)isLoading    { return _client ? _client->isLoading()    : NO; }
-- (NSString*)title   { return _client ? _client->title()        : nil; }
-
 #pragma mark - Navigation
 
 - (CefRefPtr<CefBrowser>)_browser { return _client ? _client->browser() : nullptr; }
 
 - (void)load:(NSURL*)url {
-  _URL = [url copy];
+  self.URL = url;  // synthesized setter → KVO fires
   if (auto b = [self _browser]) {
     b->GetMainFrame()->LoadURL([url.absoluteString UTF8String]);
   }
@@ -302,23 +289,12 @@ class _CEFClient : public CefClient,
   cb(value, nil);
 }
 
-#pragma mark - Delegate forwarding
+#pragma mark - Delegate forwarding (events only — state is KVO)
 
-- (void)_onTitleChange:(NSString*)title {
-  id<CEFNavigationDelegate> d = self.navigationDelegate;
-  if ([d respondsToSelector:@selector(webView:didChangeTitle:)]) {
-    [d webView:self didChangeTitle:title];
-  }
-}
-- (void)_onLoadingStateChange:(BOOL)isLoading canGoBack:(BOOL)b canGoForward:(BOOL)f {
-  id<CEFNavigationDelegate> d = self.navigationDelegate;
-  if ([d respondsToSelector:@selector(webView:didChangeLoadingState:)]) {
-    [d webView:self didChangeLoadingState:isLoading];
-  }
-}
 - (void)_onLoadStartURL:(NSURL*)url {
+  self.URL = url;  // KVO fires; covers redirects + history nav, not just load:
   id<CEFNavigationDelegate> d = self.navigationDelegate;
-  if ([d respondsToSelector:@selector(webView:didStartProvisionalNavigationTo:)]) {
+  if ([d respondsToSelector:@selector(webView:didStartProvisionalNavigation:)]) {
     [d webView:self didStartProvisionalNavigation:url];
   }
 }
@@ -330,7 +306,7 @@ class _CEFClient : public CefClient,
 }
 - (void)_onLoadErrorURL:(NSURL*)url error:(NSError*)error {
   id<CEFNavigationDelegate> d = self.navigationDelegate;
-  if ([d respondsToSelector:@selector(webView:didFailNavigationWith:)]) {
+  if ([d respondsToSelector:@selector(webView:didFailNavigationWithError:)]) {
     [d webView:self didFailNavigationWithError:error];
   }
 }

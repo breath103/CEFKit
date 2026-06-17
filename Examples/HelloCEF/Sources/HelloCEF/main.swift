@@ -1,9 +1,10 @@
-// HelloCEF — basic SwiftUI tabbed-browser shell on top of CEFKit.
+// HelloCEF — SwiftUI tabbed-browser shell with reactive title / loading bindings.
 //
 // Each BrowserTab owns its CEFWebView for the tab's whole lifetime. Every
 // tab's view stays mounted in a ZStack; only the selected one is visible
-// and hit-testable. This preserves renderer state (scroll, JS heap, forms,
-// WebSockets) across tab switches.
+// and hit-testable. Tab labels + loading indicator bind to
+// `webView.observable.*` — KVO bridge so SwiftUI redraws when CEF state
+// changes.
 
 import AppKit
 import CEFKit
@@ -29,17 +30,60 @@ final class TabStore: ObservableObject {
     }
 }
 
+struct TabRow: View {
+    let tab: BrowserTab
+    var body: some View {
+        HStack(spacing: 6) {
+            if tab.webView.observable.isLoading {
+                ProgressView().controlSize(.small)
+            }
+            Text(tabLabel)
+                .lineLimit(1)
+                .truncationMode(.tail)
+        }
+    }
+    private var tabLabel: String {
+        let title = tab.webView.observable.title
+        if let title, !title.isEmpty { return title }
+        return tab.webView.observable.url?.host ?? "new tab"
+    }
+}
+
+struct AddressBar: View {
+    let tab: BrowserTab?
+    var body: some View {
+        HStack(spacing: 8) {
+            Button { tab?.webView.goBack() } label: { Image(systemName: "chevron.left") }
+                .disabled(tab?.webView.observable.canGoBack != true)
+                .help("Back")
+            Button { tab?.webView.goForward() } label: { Image(systemName: "chevron.right") }
+                .disabled(tab?.webView.observable.canGoForward != true)
+                .help("Forward")
+            Text(tab?.webView.observable.url?.absoluteString ?? "")
+                .font(.system(.body, design: .monospaced))
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(.bar)
+        .overlay(Divider(), alignment: .bottom)
+    }
+}
+
 struct ContentView: View {
     @ObservedObject var store: TabStore
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $store.selectedID) {
+            List(selection: Binding(
+                get: { store.selectedID },
+                set: { store.selectedID = $0 }
+            )) {
                 ForEach(store.tabs) { tab in
-                    Text(tab.webView.url?.host ?? "new tab")
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                        .tag(tab.id)
+                    TabRow(tab: tab).tag(tab.id)
                 }
             }
             .navigationTitle("Tabs")
@@ -49,13 +93,16 @@ struct ContentView: View {
                         .help("New tab")
                 }
             }
-            .frame(minWidth: 180)
+            .frame(minWidth: 220)
         } detail: {
-            ZStack {
-                ForEach(store.tabs) { tab in
-                    CEFWebViewRepresentable(tab.webView)
-                        .opacity(tab.id == store.selectedID ? 1 : 0)
-                        .allowsHitTesting(tab.id == store.selectedID)
+            VStack(spacing: 0) {
+                AddressBar(tab: store.tabs.first { $0.id == store.selectedID })
+                ZStack {
+                    ForEach(store.tabs) { tab in
+                        CEFWebViewRepresentable(tab.webView)
+                            .opacity(tab.id == store.selectedID ? 1 : 0)
+                            .allowsHitTesting(tab.id == store.selectedID)
+                    }
                 }
             }
         }
@@ -85,7 +132,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 let delegate = AppDelegate()
 
 let config = CEFConfiguration(
-    userAgent: "HelloCEF/0.2 (CEFKit; macOS)",
+    userAgent: "HelloCEF/0.3 (CEFKit; macOS)",
     cachePath: FileManager.default
         .urls(for: .cachesDirectory, in: .userDomainMask)[0]
         .appendingPathComponent(Bundle.main.bundleIdentifier ?? "org.example.HelloCEF"))

@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "CEFKit",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v14)],
     products: [
         // Full surface for the host app — links Chromium Embedded Framework.
         .library(name: "CEFKit", targets: ["CEFKit"]),
