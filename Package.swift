@@ -14,12 +14,13 @@ let package = Package(
         .library(name: "CEFKitHelper", targets: ["CEFKitHelper"]),
     ],
     targets: [
-        // Prebuilt Chromium Embedded Framework, downloaded as XCFramework.
-        // For now points at the local artifacts/ output; switch to a remote URL
-        // + checksum in Phase 6 when we publish a GitHub release.
+        // Prebuilt Chromium Embedded Framework, distributed as an XCFramework
+        // attached to a GitHub Release. SPM downloads + caches it on resolution.
+        // CEF 144.0.28+ga64d412+chromium-144.0.7559.255 (arm64 only).
         .binaryTarget(
             name: "CCEF",
-            path: "artifacts/CEF.xcframework"
+            url: "https://github.com/breath103/CEFKit/releases/download/v0.1.0/CEF.xcframework.zip",
+            checksum: "a73c43f8e4ad477c12d3e47cf93a1d0791a688f6e28acd6c010469bc58ecb5e1"
         ),
 
         // CEF's libcef_dll wrapper. Vendored from the CEF binary distribution
