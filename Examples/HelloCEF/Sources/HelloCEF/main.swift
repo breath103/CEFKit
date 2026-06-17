@@ -34,7 +34,7 @@ struct TabRow: View {
     let tab: BrowserTab
     var body: some View {
         HStack(spacing: 6) {
-            FaviconView(image: tab.webView.observable.faviconImage)
+            FaviconView(image: tab.webView.observable.favicon?.image)
             if tab.webView.observable.isLoading {
                 ProgressView().controlSize(.small)
             }
@@ -74,7 +74,7 @@ struct AddressBar: View {
             Button { tab?.webView.goForward() } label: { Image(systemName: "chevron.right") }
                 .disabled(tab?.webView.observable.canGoForward != true)
                 .help("Forward")
-            FaviconView(image: tab?.webView.observable.faviconImage)
+            FaviconView(image: tab?.webView.observable.favicon?.image)
             Text(tab?.webView.observable.url?.absoluteString ?? "")
                 .font(.system(.body, design: .monospaced))
                 .lineLimit(1)

@@ -9,14 +9,22 @@
 // Redeclare the public-readonly state-mirror properties as readwrite inside
 // the class so synthesized setters fire KVO automatically. Public callers
 // still see them as readonly via the header.
+@interface CEFFaviconRef ()
+@property (nonatomic, strong, nullable) NSImage* image;  // KVO via synthesized setter
+@end
+@implementation CEFFaviconRef
+- (instancetype)initWithURL:(NSURL*)url {
+  if ((self = [super init])) { _url = [url copy]; }
+  return self;
+}
+@end
+
 @interface CEFView ()
 @property (nonatomic, copy, nullable) NSString* title;
-@property (nonatomic, strong, nullable) NSImage* faviconImage;
+@property (nonatomic, strong, nullable) CEFFaviconRef* favicon;
 @property (nonatomic, assign) BOOL isLoading;
 @property (nonatomic, assign) BOOL canGoBack;
 @property (nonatomic, assign) BOOL canGoForward;
-- (void)_onFaviconImage:(nullable NSImage*)image forURL:(nullable NSString*)url;
-- (void)_setPendingFaviconURL:(nullable NSString*)url;
 
 - (void)_onLoadStartURL:(nullable NSURL*)url;
 - (void)_onLoadEndURL:(nullable NSURL*)url statusCode:(int)code;
@@ -33,9 +41,8 @@ class _CEFClient;
 
 class _CEFFaviconCallback : public CefDownloadImageCallback {
  public:
-  _CEFFaviconCallback(__weak CEFView* owner, NSString* requestedURL)
-      : owner_(owner), requestedURL_(requestedURL) {}
-  void OnDownloadImageFinished(const CefString& image_url, int http_status_code,
+  explicit _CEFFaviconCallback(CEFFaviconRef* target) : target_(target) {}
+  void OnDownloadImageFinished(const CefString&, int http_status_code,
                                CefRefPtr<CefImage> image) override {
     NSImage* nsImage = nil;
     if (image && http_status_code >= 200 && http_status_code < 400) {
@@ -47,15 +54,14 @@ class _CEFFaviconCallback : public CefDownloadImageCallback {
         nsImage = [[NSImage alloc] initWithData:data];
       }
     }
-    __weak CEFView* owner = owner_;
-    NSString* url = requestedURL_;
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [owner _onFaviconImage:nsImage forURL:url];
-    });
+    // Weak target: if the view's favicon has since swapped to a new URL,
+    // this CEFFaviconRef is unreferenced and gone — the assignment is a
+    // no-op, no race guard needed.
+    __weak CEFFaviconRef* target = target_;
+    dispatch_async(dispatch_get_main_queue(), ^{ target.image = nsImage; });
   }
  private:
-  __weak CEFView* owner_;
-  NSString* requestedURL_;
+  __weak CEFFaviconRef* target_;
   IMPLEMENT_REFCOUNTING(_CEFFaviconCallback);
 };
 
@@ -155,18 +161,20 @@ class _CEFClient : public CefClient,
                           const std::vector<CefString>& icon_urls) override {
     __weak CEFView* o = owner_;
     if (icon_urls.empty()) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        [o _setPendingFaviconURL:nil];
-        o.faviconImage = nil;
-      });
+      dispatch_async(dispatch_get_main_queue(), ^{ o.favicon = nil; });
       return;
     }
-    NSString* urlStr = [NSString stringWithUTF8String:icon_urls.front().ToString().c_str()];
-    dispatch_async(dispatch_get_main_queue(), ^{ [o _setPendingFaviconURL:urlStr]; });
-    CefRefPtr<CefDownloadImageCallback> cb = new _CEFFaviconCallback(owner_, urlStr);
-    browser->GetHost()->DownloadImage(icon_urls.front(), /*is_favicon=*/true,
-                                      /*max_image_size=*/64,
-                                      /*bypass_cache=*/false, cb);
+    NSURL* url = [NSURL URLWithString:
+        [NSString stringWithUTF8String:icon_urls.front().ToString().c_str()]];
+    if (!url) return;
+    CefString cefURL = icon_urls.front();
+    CefRefPtr<CefBrowserHost> host = browser->GetHost();
+    dispatch_async(dispatch_get_main_queue(), ^{
+      CEFFaviconRef* ref = [[CEFFaviconRef alloc] initWithURL:url];
+      o.favicon = ref;  // KVO fires; old ref (if any) loses its strong owner
+      host->DownloadImage(cefURL, /*is_favicon=*/true, /*max_image_size=*/64,
+                          /*bypass_cache=*/false, new _CEFFaviconCallback(ref));
+    });
   }
 
   void OnTitleChange(CefRefPtr<CefBrowser>, const CefString& title) override {
@@ -193,7 +201,6 @@ class _CEFClient : public CefClient,
   BOOL _browserCreated;
   int _nextEvalId;
   NSMutableDictionary<NSNumber*, void(^)(id _Nullable, NSError* _Nullable)>* _evalCallbacks;
-  NSString* _pendingFaviconURL;  // most recently requested icon URL; older callbacks drop
 }
 
 @synthesize URL = _URL;
@@ -341,20 +348,9 @@ class _CEFClient : public CefClient,
 
 #pragma mark - Delegate forwarding (events only — state is KVO)
 
-- (void)_setPendingFaviconURL:(NSString*)url {
-  _pendingFaviconURL = [url copy];
-}
-
-- (void)_onFaviconImage:(NSImage*)image forURL:(NSString*)url {
-  // Ignore stale callbacks: only the most recently requested icon URL wins.
-  if (![url isEqualToString:_pendingFaviconURL]) return;
-  self.faviconImage = image;
-}
-
 - (void)_onLoadStartURL:(NSURL*)url {
   // New page → clear stale favicon until OnFaviconURLChange arrives.
-  [self _setPendingFaviconURL:nil];
-  self.faviconImage = nil;
+  self.favicon = nil;
   self.URL = url;  // KVO fires; covers redirects + history nav, not just load:
   id<CEFNavigationDelegate> d = self.navigationDelegate;
   if ([d respondsToSelector:@selector(webView:didStartProvisionalNavigation:)]) {
