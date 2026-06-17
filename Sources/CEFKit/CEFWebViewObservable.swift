@@ -1,4 +1,5 @@
 @_exported import CEFViewObjC
+import AppKit
 import Foundation
 import Observation
 
@@ -25,6 +26,7 @@ public final class CEFWebViewObservable {
     public private(set) var isLoading: Bool = false
     public private(set) var canGoBack: Bool = false
     public private(set) var canGoForward: Bool = false
+    public private(set) var favicon: Favicon?
 
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
 
@@ -37,6 +39,7 @@ public final class CEFWebViewObservable {
         self.isLoading = webView.isLoading
         self.canGoBack = webView.canGoBack
         self.canGoForward = webView.canGoForward
+        self.favicon = webView.favicon.map(Favicon.init)
 
         observations.append(webView.observe(\.title, options: [.new]) { [weak self] _, c in
             self?.title = c.newValue ?? nil
@@ -52,6 +55,9 @@ public final class CEFWebViewObservable {
         })
         observations.append(webView.observe(\.canGoForward, options: [.new]) { [weak self] _, c in
             self?.canGoForward = c.newValue ?? false
+        })
+        observations.append(webView.observe(\.favicon, options: [.new]) { [weak self] _, c in
+            self?.favicon = (c.newValue ?? nil).map(Favicon.init)
         })
     }
 }

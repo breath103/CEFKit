@@ -8,6 +8,19 @@ NS_ASSUME_NONNULL_BEGIN
 @class CEFConfiguration;
 @protocol CEFNavigationDelegate;
 
+/// Backing object for a single favicon download. Identity = URL: when the
+/// page swaps to a new favicon URL, `CEFView.favicon` is replaced with a
+/// fresh instance, so stale download callbacks land on the old (now
+/// unreferenced) one rather than overwriting current state.
+/// The Swift `Favicon` wrapper in CEFKit exposes this with @Observable.
+NS_SWIFT_NAME(CEFFaviconRef)
+@interface CEFFaviconRef : NSObject
+@property (nonatomic, readonly) NSURL* url;
+@property (nonatomic, readonly, nullable) NSImage* image;
+- (instancetype)initWithURL:(NSURL*)url NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+@end
+
 typedef void (^CEFSetupBlock)(void);
 
 NS_SWIFT_NAME(CEFConfiguration)
@@ -60,6 +73,12 @@ NS_SWIFT_NAME(CEFWebView)
 @property (nonatomic, readonly) BOOL canGoForward;
 @property (nonatomic, readonly) BOOL isLoading;
 @property (nonatomic, readonly, nullable) NSString* title;
+/// Current page favicon. A new instance is created every time the page's
+/// favicon URL changes — `url` is fixed at construction, `image` lands
+/// asynchronously when CEF's image loader finishes the download. Old
+/// instances orphan naturally when the URL changes again, so a late
+/// callback writing to one is harmless. KVO-observable.
+@property (nonatomic, readonly, nullable) CEFFaviconRef* favicon;
 @property (nonatomic, weak, nullable) id<CEFNavigationDelegate> navigationDelegate;
 
 - (instancetype)initWithFrame:(NSRect)frame URL:(nullable NSURL*)url NS_DESIGNATED_INITIALIZER;
