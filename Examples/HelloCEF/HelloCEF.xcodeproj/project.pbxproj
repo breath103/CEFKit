@@ -7,9 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B7358D957FE2297C021B670 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFAC388BE53B851FD295901 /* AppDelegate.swift */; };
+		2F1A3066E37B8E8E6A7C2A73 /* TabRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC7C6966EE82C0EA29D3642 /* TabRow.swift */; };
 		46CE3685B4EE99ABB5FCB1DC /* CEFKit in Frameworks */ = {isa = PBXBuildFile; productRef = CF71C10404166E067FC7258D /* CEFKit */; };
+		5CB7CBA0D9AF7B72733E5DF5 /* TabStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E738C740E5D9AEFE0275B7 /* TabStore.swift */; };
 		5D570BC3524EBC95C465CFFF /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61C9A19F926AA9AE9B58B50 /* main.swift */; };
+		5DDC2CC5345D4B973454C4E7 /* BrowserTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB4DC6907C495D692A8C44E /* BrowserTab.swift */; };
+		6F81261D83BB4605E4E143A3 /* AddressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0618ECD96F997C8E82E3FD /* AddressBar.swift */; };
+		70B605C439B87433D117A886 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0359055A0606F9D5BCF3B424 /* ContentView.swift */; };
 		B389244504C2A8633C13DF53 /* CEFKitHelper in Frameworks */ = {isa = PBXBuildFile; productRef = 6D7FF9D2635709C35A4322AB /* CEFKitHelper */; };
+		D4ADBC3EE225D5E298ECE2E1 /* FaviconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC71016043F0306B4057B7F /* FaviconView.swift */; };
 		F6BE22DEA46F6FFE9C36290E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDA69142391BB2B32811D17 /* main.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,10 +31,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0359055A0606F9D5BCF3B424 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		06E738C740E5D9AEFE0275B7 /* TabStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabStore.swift; sourceTree = "<group>"; };
+		0AC7C6966EE82C0EA29D3642 /* TabRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRow.swift; sourceTree = "<group>"; };
+		0FC71016043F0306B4057B7F /* FaviconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconView.swift; sourceTree = "<group>"; };
 		33CD1372AD3D8BFE86D8C704 /* CEF */ = {isa = PBXFileReference; lastKnownFileType = folder; name = CEF; path = ../..; sourceTree = SOURCE_ROOT; };
 		3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloCEF.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DFAC388BE53B851FD295901 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6EDA69142391BB2B32811D17 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		7BB4DC6907C495D692A8C44E /* BrowserTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTab.swift; sourceTree = "<group>"; };
 		9DBAD8EF5201954E6DA0A8BE /* HelloCEFHelper */ = {isa = PBXFileReference; includeInIndex = 0; path = HelloCEFHelper; sourceTree = BUILT_PRODUCTS_DIR; };
+		BA0618ECD96F997C8E82E3FD /* AddressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBar.swift; sourceTree = "<group>"; };
 		C61C9A19F926AA9AE9B58B50 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -80,7 +94,14 @@
 		885E74C010A970B74AEBFB93 /* HelloCEF */ = {
 			isa = PBXGroup;
 			children = (
+				BA0618ECD96F997C8E82E3FD /* AddressBar.swift */,
+				4DFAC388BE53B851FD295901 /* AppDelegate.swift */,
+				7BB4DC6907C495D692A8C44E /* BrowserTab.swift */,
+				0359055A0606F9D5BCF3B424 /* ContentView.swift */,
+				0FC71016043F0306B4057B7F /* FaviconView.swift */,
 				6EDA69142391BB2B32811D17 /* main.swift */,
+				0AC7C6966EE82C0EA29D3642 /* TabRow.swift */,
+				06E738C740E5D9AEFE0275B7 /* TabStore.swift */,
 			);
 			path = HelloCEF;
 			sourceTree = "<group>";
@@ -213,6 +234,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6F81261D83BB4605E4E143A3 /* AddressBar.swift in Sources */,
+				0B7358D957FE2297C021B670 /* AppDelegate.swift in Sources */,
+				5DDC2CC5345D4B973454C4E7 /* BrowserTab.swift in Sources */,
+				70B605C439B87433D117A886 /* ContentView.swift in Sources */,
+				D4ADBC3EE225D5E298ECE2E1 /* FaviconView.swift in Sources */,
+				2F1A3066E37B8E8E6A7C2A73 /* TabRow.swift in Sources */,
+				5CB7CBA0D9AF7B72733E5DF5 /* TabStore.swift in Sources */,
 				F6BE22DEA46F6FFE9C36290E /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
