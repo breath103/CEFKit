@@ -22,14 +22,46 @@ That's the whole demo. Real consumer setup is in [`INTEGRATION.md`](INTEGRATION.
 
 ## Install
 
-```swift
-// Package.swift
-.package(url: "https://github.com/breath103/CEFKit.git", from: "0.1.1"),
+Three steps, in your Xcode project:
+
+**1. Add the SPM dependency.** File → Add Package Dependencies → URL:
+
+```
+https://github.com/breath103/CEFKit.git
 ```
 
-Then add `CEFKit` to your host app target's dependencies and `CEFKitHelper`
-to your helper-executable target. See [`Examples/HelloCEF`](Examples/HelloCEF)
-for a working Xcode project that does exactly this.
+**2. Link two products to two targets.**
+
+| Your target | Add product |
+|---|---|
+| Host app (e.g. `MyApp`) | `CEFKit` |
+| Helper executable (e.g. `MyAppHelper`) — a "Command Line Tool" target you create | `CEFKitHelper` |
+
+The host imports `CEFKit`. The helper is one line:
+
+```swift
+import CEFKitHelper
+exit(Int32(CEFApplication.runHelper()))
+```
+
+**3. Add a Run Script Build Phase to the host app target.** Build Phases → + → New Run Script Phase. Paste:
+
+```sh
+PKG="$BUILD_DIR/../../SourcePackages/checkouts/CEFKit"
+export CEFKIT_FRAMEWORK_PATH="$PKG/vendor/cef/Release/Chromium Embedded Framework.framework"
+export CEFKIT_HELPER_PATH="$BUILT_PRODUCTS_DIR/MyAppHelper"
+export CEFKIT_HELPER_PLIST="$PKG/scripts/helper.plist.in"
+"$PKG/scripts/embed-cefkit.sh"
+```
+
+(Substitute `MyAppHelper` with your helper target's executable name.)
+
+That's it. SPM downloads the Chromium Embedded Framework automatically. The
+Run Script assembles the 5 sub-process `.app` bundles CEF needs.
+
+For the long version (why these steps exist, codesigning, entitlements):
+[`INTEGRATION.md`](INTEGRATION.md).
+For a working reference: [`Examples/HelloCEF`](Examples/HelloCEF/HelloCEF.xcodeproj).
 
 ---
 
