@@ -1,79 +1,91 @@
-// HelloCEF — minimal CEFKit consumer.
+// HelloCEF — basic SwiftUI tabbed-browser shell on top of CEFKit.
 //
-// Drop a CEFWebView into an NSWindow. Wire the navigation delegate. Run JS
-// after the page finishes loading. ~70 lines.
+// Each BrowserTab owns its CEFWebView for the tab's whole lifetime. Every
+// tab's view stays mounted in a ZStack; only the selected one is visible
+// and hit-testable. This preserves renderer state (scroll, JS heap, forms,
+// WebSockets) across tab switches.
 
 import AppKit
 import CEFKit
+import SwiftUI
 
-final class App: NSObject, NSApplicationDelegate, CEFNavigationDelegate {
+final class BrowserTab: Identifiable {
+    let id = UUID()
+    let webView: CEFWebView
+
+    init(url: URL) {
+        self.webView = CEFWebView(frame: .zero, url: url)
+    }
+}
+
+final class TabStore: ObservableObject {
+    @Published var tabs: [BrowserTab] = []
+    @Published var selectedID: BrowserTab.ID?
+
+    func newTab(_ url: URL = URL(string: "https://example.com")!) {
+        let tab = BrowserTab(url: url)
+        tabs.append(tab)
+        selectedID = tab.id
+    }
+}
+
+struct ContentView: View {
+    @ObservedObject var store: TabStore
+
+    var body: some View {
+        NavigationSplitView {
+            List(selection: $store.selectedID) {
+                ForEach(store.tabs) { tab in
+                    Text(tab.webView.url?.host ?? "new tab")
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .tag(tab.id)
+                }
+            }
+            .navigationTitle("Tabs")
+            .toolbar {
+                ToolbarItem {
+                    Button { store.newTab() } label: { Image(systemName: "plus") }
+                        .help("New tab")
+                }
+            }
+            .frame(minWidth: 180)
+        } detail: {
+            ZStack {
+                ForEach(store.tabs) { tab in
+                    CEFWebViewRepresentable(tab.webView)
+                        .opacity(tab.id == store.selectedID ? 1 : 0)
+                        .allowsHitTesting(tab.id == store.selectedID)
+                }
+            }
+        }
+    }
+}
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    let store = TabStore()
     var window: NSWindow!
-    var webView: CEFWebView!
 
     func makeWindow() {
-        let rect = NSRect(x: 0, y: 0, width: 1100, height: 750)
+        store.newTab(URL(string: "https://news.ycombinator.com")!)
+        store.newTab(URL(string: "https://example.com")!)
+
         window = NSWindow(
-            contentRect: rect,
+            contentRect: NSRect(x: 0, y: 0, width: 1200, height: 800),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered, defer: false)
         window.title = "HelloCEF"
         window.center()
-
-        webView = CEFWebView(frame: rect, url: URL(string: "https://news.ycombinator.com")!)
-        webView.navigationDelegate = self
-        window.contentView = webView
+        window.contentView = NSHostingView(rootView: ContentView(store: store))
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
-
-        // Cmd+Opt+I → toggle DevTools, browser-standard shortcut.
-        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self else { return event }
-            let cmdOpt: NSEvent.ModifierFlags = [.command, .option]
-            if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == cmdOpt,
-               event.charactersIgnoringModifiers?.lowercased() == "i" {
-                self.webView.isDevToolsOpen.toggle()
-                return nil
-            }
-            return event
-        }
     }
-
-    // MARK: CEFNavigationDelegate
-
-    func webView(_ webView: CEFWebView, didStartProvisionalNavigationTo url: URL?) {
-        NSLog("[HelloCEF] navigating → %@", url?.absoluteString ?? "?")
-    }
-
-    func webView(_ webView: CEFWebView, didFinishNavigationTo url: URL?, statusCode code: Int32) {
-        NSLog("[HelloCEF] loaded %@ (HTTP %d)", url?.absoluteString ?? "?", code)
-        Task { @MainActor in
-            do {
-                let title = try await webView.evaluateJavaScript("document.title", as: String.self)
-                let storyCount = try await webView.evaluateJavaScript(
-                    "document.querySelectorAll('.athing').length", as: Int.self)
-                NSLog("[HelloCEF] page title: %@", title)
-                NSLog("[HelloCEF] stories on page: %d", storyCount)
-            } catch {
-                NSLog("[HelloCEF] eval error: %@", error.localizedDescription)
-            }
-        }
-    }
-
-    func webView(_ webView: CEFWebView, didChangeTitle title: String?) {
-        window.title = title ?? "HelloCEF"
-    }
-
-    func webView(_ webView: CEFWebView, didChangeLoadingState isLoading: Bool) {
-        NSLog("[HelloCEF] %@", isLoading ? "loading…" : "idle")
-    }
-
-    func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool { true }
 }
 
-let delegate = App()
+let delegate = AppDelegate()
 
 let config = CEFConfiguration(
-    userAgent: "HelloCEF/0.1 (CEFKit; macOS)",
+    userAgent: "HelloCEF/0.2 (CEFKit; macOS)",
     cachePath: FileManager.default
         .urls(for: .cachesDirectory, in: .userDomainMask)[0]
         .appendingPathComponent(Bundle.main.bundleIdentifier ?? "org.example.HelloCEF"))
