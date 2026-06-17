@@ -24,6 +24,18 @@ final class App: NSObject, NSApplicationDelegate, CEFNavigationDelegate {
         window.contentView = webView
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+
+        // Cmd+Opt+I → toggle DevTools, browser-standard shortcut.
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self else { return event }
+            let cmdOpt: NSEvent.ModifierFlags = [.command, .option]
+            if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == cmdOpt,
+               event.charactersIgnoringModifiers?.lowercased() == "i" {
+                self.webView.isDevToolsOpen.toggle()
+                return nil
+            }
+            return event
+        }
     }
 
     // MARK: CEFNavigationDelegate
