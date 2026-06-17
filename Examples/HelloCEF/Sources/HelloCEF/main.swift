@@ -74,6 +74,14 @@ struct AddressBar: View {
             Button { tab?.webView.goForward() } label: { Image(systemName: "chevron.right") }
                 .disabled(tab?.webView.observable.canGoForward != true)
                 .help("Forward")
+            if tab?.webView.observable.isLoading == true {
+                Button { tab?.webView.stopLoading() } label: { Image(systemName: "xmark") }
+                    .help("Stop")
+            } else {
+                Button { tab?.webView.reload() } label: { Image(systemName: "arrow.clockwise") }
+                    .disabled(tab == nil)
+                    .help("Reload")
+            }
             FaviconView(image: tab?.webView.observable.favicon?.image)
             Text(tab?.webView.observable.url?.absoluteString ?? "")
                 .font(.system(.body, design: .monospaced))
@@ -129,6 +137,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let store = TabStore()
     var window: NSWindow!
 
+    func makeMenu() {
+        // Minimal application menu — without this Cmd+Q is dead.
+        // CEFApplication's NSApplication subclass overrides `terminate:`
+        // to call CefQuitMessageLoop(), so the standard Quit item unwinds
+        // CEF cleanly.
+        let appName = ProcessInfo.processInfo.processName
+        let mainMenu = NSMenu()
+        let appItem = NSMenuItem()
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: "Quit \(appName)",
+                        action: #selector(NSApplication.terminate(_:)),
+                        keyEquivalent: "q")
+        appItem.submenu = appMenu
+        mainMenu.addItem(appItem)
+        NSApp.mainMenu = mainMenu
+    }
+
     func makeWindow() {
         store.newTab(URL(string: "https://news.ycombinator.com")!)
         store.newTab(URL(string: "https://example.com")!)
@@ -155,5 +180,6 @@ let config = CEFConfiguration(
 
 exit(Int32(CEFApplication.run(configuration: config) {
     NSApp.delegate = delegate
+    delegate.makeMenu()
     delegate.makeWindow()
 }))
