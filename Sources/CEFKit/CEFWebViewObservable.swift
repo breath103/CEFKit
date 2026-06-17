@@ -1,5 +1,5 @@
-@_exported import CEFViewObjC
 import AppKit
+@_exported import CEFViewObjC
 import Foundation
 import Observation
 
@@ -34,12 +34,12 @@ public final class CEFWebViewObservable {
         self.webView = webView
         // Seed initial values before observing — KVO with .initial would also
         // work but we prefer explicit reads here.
-        self.title = webView.title
-        self.url = webView.url
-        self.isLoading = webView.isLoading
-        self.canGoBack = webView.canGoBack
-        self.canGoForward = webView.canGoForward
-        self.favicon = webView.favicon.map(Favicon.init)
+        title = webView.title
+        url = webView.url
+        isLoading = webView.isLoading
+        canGoBack = webView.canGoBack
+        canGoForward = webView.canGoForward
+        favicon = webView.favicon.map(Favicon.init)
 
         observations.append(webView.observe(\.title, options: [.new]) { [weak self] _, c in
             self?.title = c.newValue ?? nil

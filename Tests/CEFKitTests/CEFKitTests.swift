@@ -1,5 +1,5 @@
-import XCTest
 @testable import CEFKit
+import XCTest
 
 final class CEFKitTests: XCTestCase {
     func testTypesAreExposed() {

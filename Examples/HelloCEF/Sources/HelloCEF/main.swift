@@ -15,7 +15,7 @@ final class BrowserTab: Identifiable {
     let webView: CEFWebView
 
     init(url: URL) {
-        self.webView = CEFWebView(frame: .zero, url: url)
+        webView = CEFWebView(frame: .zero, url: url)
     }
 }
 
@@ -43,6 +43,7 @@ struct TabRow: View {
                 .truncationMode(.tail)
         }
     }
+
     private var tabLabel: String {
         let title = tab.webView.observable.title
         if let title, !title.isEmpty { return title }
@@ -146,9 +147,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let mainMenu = NSMenu()
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "Quit \(appName)",
-                        action: #selector(NSApplication.terminate(_:)),
-                        keyEquivalent: "q")
+        appMenu.addItem(
+            withTitle: "Quit \(appName)",
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        )
         appItem.submenu = appMenu
         mainMenu.addItem(appItem)
         NSApp.mainMenu = mainMenu
@@ -161,7 +164,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1200, height: 800),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
-            backing: .buffered, defer: false)
+            backing: .buffered, defer: false
+        )
         window.title = "HelloCEF"
         window.center()
         window.contentView = NSHostingView(rootView: ContentView(store: store))
@@ -176,7 +180,8 @@ let config = CEFConfiguration(
     userAgent: "HelloCEF/0.3 (CEFKit; macOS)",
     cachePath: FileManager.default
         .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent(Bundle.main.bundleIdentifier ?? "org.example.HelloCEF"))
+        .appendingPathComponent(Bundle.main.bundleIdentifier ?? "org.example.HelloCEF")
+)
 
 exit(Int32(CEFApplication.run(configuration: config) {
     NSApp.delegate = delegate

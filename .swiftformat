@@ -1,0 +1,16 @@
+# SwiftFormat config — see https://github.com/nicklockwood/SwiftFormat
+--swiftversion 5.9
+
+--exclude .build,vendor,artifacts,Sources/CEFViewObjC,Sources/CEFWrapper
+
+--indent 4
+--maxwidth 140
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--trimwhitespace always
+--semicolons never
+--commas inline
+--self remove
+--stripunusedargs closure-only
+--header ignore

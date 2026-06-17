@@ -11,7 +11,7 @@ let package = Package(
         // the CCEF binary framework, so SPM/clang doesn't bake a host-shaped
         // @executable_path/../Frameworks/... load command into the helper.
         // The helper dlopens the framework at runtime via CefScopedLibraryLoader.
-        .library(name: "CEFKitHelper", targets: ["CEFKitHelper"]),
+        .library(name: "CEFKitHelper", targets: ["CEFKitHelper"])
     ],
     targets: [
         // Prebuilt Chromium Embedded Framework, distributed as an XCFramework
@@ -29,7 +29,7 @@ let package = Package(
             name: "CEFWrapper",
             path: "Sources/CEFWrapper",
             exclude: [
-                "libcef_dll/CMakeLists.txt",
+                "libcef_dll/CMakeLists.txt"
             ],
             sources: ["libcef_dll"],
             publicHeadersPath: "include",
@@ -38,7 +38,7 @@ let package = Package(
                 .define("__STDC_CONSTANT_MACROS"),
                 .define("__STDC_FORMAT_MACROS"),
                 .define("USING_CEF_SHARED"),
-                .define("WRAPPING_CEF_SHARED"),
+                .define("WRAPPING_CEF_SHARED")
                 // NB: don't add unsafeFlags here — SPM rejects packages that
                 // consume binaryTargets via URL if any transitively-linked
                 // target uses unsafeFlags. We tolerate the -Wundefined-var-template
@@ -57,7 +57,7 @@ let package = Package(
                 .headerSearchPath("../CEFWrapper"),
                 .define("__STDC_CONSTANT_MACROS"),
                 .define("__STDC_FORMAT_MACROS"),
-                .define("USING_CEF_SHARED"),
+                .define("USING_CEF_SHARED")
             ]
         ),
 
@@ -80,7 +80,7 @@ let package = Package(
             name: "CEFKitTests",
             dependencies: ["CEFKit"],
             path: "Tests/CEFKitTests"
-        ),
+        )
     ],
     cxxLanguageStandard: .cxx17
 )
