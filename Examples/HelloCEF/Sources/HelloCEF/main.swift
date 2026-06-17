@@ -73,11 +73,14 @@ struct AddressBar: View {
 }
 
 struct ContentView: View {
-    @Bindable var store: TabStore
+    let store: TabStore
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $store.selectedID) {
+            List(selection: Binding(
+                get: { store.selectedID },
+                set: { store.selectedID = $0 }
+            )) {
                 ForEach(store.tabs) { tab in
                     TabRow(tab: tab).tag(tab.id)
                 }
