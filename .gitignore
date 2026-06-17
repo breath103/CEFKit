@@ -14,6 +14,8 @@ Examples/*/build/
 *.xcodeproj/xcuserdata/
 *.xcodeproj/project.xcworkspace/xcuserdata/
 *.xcworkspace/xcuserdata/
+.swiftpm/
+DerivedData/
 
 # Resolved package versions — let consumers resolve themselves
 Package.resolved

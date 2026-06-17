@@ -40,9 +40,20 @@ mkdir -p "$FRAMEWORKS"
 
 echo "[CEFKit] embedding into $APP"
 
-echo "[CEFKit]  → copying Chromium Embedded Framework"
-rm -rf "$FRAMEWORKS/Chromium Embedded Framework.framework"
-cp -R "$CEFKIT_FRAMEWORK_PATH" "$FRAMEWORKS/Chromium Embedded Framework.framework"
+if [[ -n "${XCODE_PRODUCT_BUILD_VERSION:-}" ]]; then
+  # Under Xcode the CCEF binary target is auto-embedded + signed via the
+  # standard "Embed Frameworks" build phase Xcode generates from the SPM
+  # dependency on CEFKit (which depends on CCEF). We must not touch it here.
+  echo "[CEFKit]  → framework already embedded by Xcode, skipping"
+else
+  echo "[CEFKit]  → copying Chromium Embedded Framework"
+  rm -rf "$FRAMEWORKS/Chromium Embedded Framework.framework"
+  cp -R "$CEFKIT_FRAMEWORK_PATH" "$FRAMEWORKS/Chromium Embedded Framework.framework"
+fi
+
+# NB: framework Info.plist is injected into the framework at fetch-cef.sh
+# time, before it gets packaged into CEF.xcframework. Doing it here would
+# invalidate Xcode's framework codesign that already ran above.
 
 embed_helper() {
   local label="$1"      # ""  | " (GPU)" | " (Renderer)" | " (Plugin)" | " (Alerts)"
@@ -67,16 +78,29 @@ embed_helper " (Renderer)" ".renderer"
 embed_helper " (Plugin)"   ".plugin"
 embed_helper " (Alerts)"   ".alerts"
 
-echo "[CEFKit]  → signing framework (identity: $SIGN_ID)"
-codesign --force --sign "$SIGN_ID" --timestamp=none \
-  "$FRAMEWORKS/Chromium Embedded Framework.framework"
+if [[ -n "${XCODE_PRODUCT_BUILD_VERSION:-}" ]]; then
+  echo "[CEFKit]  → framework signing handled by Xcode, skipping"
+else
+  echo "[CEFKit]  → signing framework (identity: $SIGN_ID)"
+  codesign --force --sign "$SIGN_ID" --timestamp=none \
+    "$FRAMEWORKS/Chromium Embedded Framework.framework"
+fi
 
 # NB: do NOT codesign helper bundles. Their executables are linker-signed at
 # build time and Chromium's IPC handshake validates that exact signature.
 # Re-codesigning the bundle wraps the binary in a new sig and breaks helpers
 # with a CHECK fail in cef_execute_process.
 
-echo "[CEFKit]  → signing host"
-codesign --force --sign "$SIGN_ID" --timestamp=none "$APP"
+# Skip host signing when running under Xcode — Xcode signs the host app
+# itself as the final build step, after this script. Doing it here too fails
+# because Xcode has already injected __preview.dylib for SwiftUI Previews,
+# which codesign can't process. Standalone shell builds set no XCODE_*
+# vars and DO need us to sign the host.
+if [[ -n "${XCODE_PRODUCT_BUILD_VERSION:-}" ]]; then
+  echo "[CEFKit]  → skipping host sign (Xcode will sign on its own)"
+else
+  echo "[CEFKit]  → signing host"
+  codesign --force --sign "$SIGN_ID" --timestamp=none "$APP"
+fi
 
 echo "[CEFKit]  done"

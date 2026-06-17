@@ -1,0 +1,475 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		46CE3685B4EE99ABB5FCB1DC /* CEFKit in Frameworks */ = {isa = PBXBuildFile; productRef = CF71C10404166E067FC7258D /* CEFKit */; };
+		5D570BC3524EBC95C465CFFF /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61C9A19F926AA9AE9B58B50 /* main.swift */; };
+		B389244504C2A8633C13DF53 /* CEFKitHelper in Frameworks */ = {isa = PBXBuildFile; productRef = 6D7FF9D2635709C35A4322AB /* CEFKitHelper */; };
+		F6BE22DEA46F6FFE9C36290E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDA69142391BB2B32811D17 /* main.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F471607FBE68B37FC95578FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FECF69303226A43E8CB90E77 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 117D1B1FBD834F3BFD0399B0;
+			remoteInfo = HelloCEFHelper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		33CD1372AD3D8BFE86D8C704 /* CEF */ = {isa = PBXFileReference; lastKnownFileType = folder; name = CEF; path = ../..; sourceTree = SOURCE_ROOT; };
+		3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloCEF.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EDA69142391BB2B32811D17 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		9DBAD8EF5201954E6DA0A8BE /* HelloCEFHelper */ = {isa = PBXFileReference; includeInIndex = 0; path = HelloCEFHelper; sourceTree = BUILT_PRODUCTS_DIR; };
+		C61C9A19F926AA9AE9B58B50 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9A05837913A431D39F49BD9E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46CE3685B4EE99ABB5FCB1DC /* CEFKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F99FC92661723D8A7897CE26 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B389244504C2A8633C13DF53 /* CEFKitHelper in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		33648EB395CCDA912E2B2066 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				885E74C010A970B74AEBFB93 /* HelloCEF */,
+				BB8D0941EAA1179D75885097 /* HelloCEFHelper */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		4295F990AE5A15FCD455A472 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				33CD1372AD3D8BFE86D8C704 /* CEF */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		774E5B12C7FA380D138CA10E = {
+			isa = PBXGroup;
+			children = (
+				4295F990AE5A15FCD455A472 /* Packages */,
+				33648EB395CCDA912E2B2066 /* Sources */,
+				D2591141DC441036D87C2A4D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		885E74C010A970B74AEBFB93 /* HelloCEF */ = {
+			isa = PBXGroup;
+			children = (
+				6EDA69142391BB2B32811D17 /* main.swift */,
+			);
+			path = HelloCEF;
+			sourceTree = "<group>";
+		};
+		BB8D0941EAA1179D75885097 /* HelloCEFHelper */ = {
+			isa = PBXGroup;
+			children = (
+				C61C9A19F926AA9AE9B58B50 /* main.swift */,
+			);
+			path = HelloCEFHelper;
+			sourceTree = "<group>";
+		};
+		D2591141DC441036D87C2A4D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */,
+				9DBAD8EF5201954E6DA0A8BE /* HelloCEFHelper */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		117D1B1FBD834F3BFD0399B0 /* HelloCEFHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BC0E0989117AE84B24EB9DC /* Build configuration list for PBXNativeTarget "HelloCEFHelper" */;
+			buildPhases = (
+				BF2C320C9C7230FC22BC9760 /* Sources */,
+				F99FC92661723D8A7897CE26 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HelloCEFHelper;
+			packageProductDependencies = (
+				6D7FF9D2635709C35A4322AB /* CEFKitHelper */,
+			);
+			productName = HelloCEFHelper;
+			productReference = 9DBAD8EF5201954E6DA0A8BE /* HelloCEFHelper */;
+			productType = "com.apple.product-type.tool";
+		};
+		6ED85C9F76AF13BEA6D3CB40 /* HelloCEF */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F597137B537BCF0C976A5BB8 /* Build configuration list for PBXNativeTarget "HelloCEF" */;
+			buildPhases = (
+				84653501FCF77C8ACAB78FED /* Sources */,
+				9A05837913A431D39F49BD9E /* Frameworks */,
+				CD6DC8C8C80EDAA403779939 /* [CEFKit] Embed framework + helpers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D1E0B3BF396B136549688B0D /* PBXTargetDependency */,
+			);
+			name = HelloCEF;
+			packageProductDependencies = (
+				CF71C10404166E067FC7258D /* CEFKit */,
+			);
+			productName = HelloCEF;
+			productReference = 3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FECF69303226A43E8CB90E77 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					117D1B1FBD834F3BFD0399B0 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+					6ED85C9F76AF13BEA6D3CB40 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = C35EAB0545669EE3FD1FAD7B /* Build configuration list for PBXProject "HelloCEF" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 774E5B12C7FA380D138CA10E;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F9D5FF1013E8C6402CBFF6B8 /* XCLocalSwiftPackageReference "../.." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = D2591141DC441036D87C2A4D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6ED85C9F76AF13BEA6D3CB40 /* HelloCEF */,
+				117D1B1FBD834F3BFD0399B0 /* HelloCEFHelper */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		CD6DC8C8C80EDAA403779939 /* [CEFKit] Embed framework + helpers */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[CEFKit] Embed framework + helpers";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "set -euo pipefail\nPKG=\"$SRCROOT/../..\"\nexport CEFKIT_FRAMEWORK_PATH=\"$PKG/vendor/cef/Release/Chromium Embedded Framework.framework\"\nexport CEFKIT_HELPER_PATH=\"$BUILT_PRODUCTS_DIR/HelloCEFHelper\"\nexport CEFKIT_HELPER_PLIST=\"$PKG/scripts/helper.plist.in\"\n\"$PKG/scripts/embed-cefkit.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		84653501FCF77C8ACAB78FED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6BE22DEA46F6FFE9C36290E /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF2C320C9C7230FC22BC9760 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5D570BC3524EBC95C465CFFF /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D1E0B3BF396B136549688B0D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 117D1B1FBD834F3BFD0399B0 /* HelloCEFHelper */;
+			targetProxy = F471607FBE68B37FC95578FB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		07A2E78960425785C3818E24 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = HelloCEF/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEF;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		1891BDE46F71BF1D850CE558 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEFHelper;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		2A580A34ADC281E45B74A74D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEFHelper;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		47A67A6A36CB5C5BF351647A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = HelloCEF/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEF;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		611F99F51FEA4DFA2016B65B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		B5304144E9EC6E4C64FD1A30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1BC0E0989117AE84B24EB9DC /* Build configuration list for PBXNativeTarget "HelloCEFHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1891BDE46F71BF1D850CE558 /* Debug */,
+				2A580A34ADC281E45B74A74D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C35EAB0545669EE3FD1FAD7B /* Build configuration list for PBXProject "HelloCEF" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5304144E9EC6E4C64FD1A30 /* Debug */,
+				611F99F51FEA4DFA2016B65B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F597137B537BCF0C976A5BB8 /* Build configuration list for PBXNativeTarget "HelloCEF" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				07A2E78960425785C3818E24 /* Debug */,
+				47A67A6A36CB5C5BF351647A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		F9D5FF1013E8C6402CBFF6B8 /* XCLocalSwiftPackageReference "../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6D7FF9D2635709C35A4322AB /* CEFKitHelper */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CEFKitHelper;
+		};
+		CF71C10404166E067FC7258D /* CEFKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CEFKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = FECF69303226A43E8CB90E77 /* Project object */;
+}

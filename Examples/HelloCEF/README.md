@@ -1,9 +1,8 @@
 # HelloCEF
 
-A minimal standalone consumer of the [CEFKit](../..) package. Structurally
-identical to what a third-party project would look like — its `Package.swift`
-declares CEFKit as a dependency, and the source code only ever talks to
-`CEFKit` and `CEFKitHelper`.
+A minimal Xcode project that depends on [CEFKit](../..) and shows a
+`CEFWebView` rendering Hacker News. Structurally identical to what a
+third-party project would look like.
 
 ```swift
 import AppKit
@@ -14,41 +13,49 @@ webView.navigationDelegate = self
 window.contentView = webView
 ```
 
-## Build & run
+## Run from Xcode
 
 ```sh
-./build.sh
-open build/HelloCEF.app
+open HelloCEF.xcodeproj
 ```
 
-First launch: click **Always Allow** on the Keychain prompt. See the root
-README for why.
+Pick the `HelloCEF` scheme, hit ▶️. First launch will prompt for Keychain
+access ("Chromium Safe Storage") — click **Always Allow** once.
 
-## Why two targets
+## Regenerating the Xcode project
 
-CEF runs as five separate `.app` bundles (helpers) embedded in the host
-app's `Contents/Frameworks/`. We need two distinct executables:
+The `.xcodeproj` is generated from `project.yml` via [XcodeGen](https://github.com/yonsm/XcodeGen):
+
+```sh
+brew install xcodegen
+xcodegen generate
+```
+
+Commit the generated `.xcodeproj` if you want others to open it without
+installing XcodeGen.
+
+## Two targets, two modules
 
 | Target | Module imported | Why |
 |---|---|---|
-| `HelloCEF` | `import CEFKit` | The host. Pulls in the Chromium Embedded Framework as a linked binary at `@executable_path/../Frameworks/...` |
-| `HelloCEFHelper` | `import CEFKitHelper` | The sub-process. The same Mach-O is copied into all 5 helper `.app` bundles. Does NOT statically link the framework — it `dlopen`s it at runtime via `CefScopedLibraryLoader::LoadInHelper()`, which finds it relative to the host bundle (not the helper bundle). |
+| `HelloCEF` (app) | `import CEFKit` | The host. Links the Chromium Embedded Framework at `@executable_path/../Frameworks/...` |
+| `HelloCEFHelper` (tool) | `import CEFKitHelper` | The sub-process. Same Mach-O is copied into all 5 helper `.app` bundles by the embed script. Does NOT statically link the framework — `dlopen`s it at runtime via `CefScopedLibraryLoader::LoadInHelper()`. |
 
-If both used `import CEFKit`, the helper would inherit a load command for
-`@executable_path/../Frameworks/Chromium Embedded Framework.framework/...`
-which is wrong relative to the helper exec — that path doesn't exist three
-levels deep inside `HelloCEF.app/Contents/Frameworks/HelloCEF Helper.app/Contents/MacOS/`,
-and dyld would refuse to launch the helper.
+If both imported `CEFKit`, the helper would inherit a `@executable_path/../Frameworks/...`
+load command that's wrong relative to the helper exec (it's three levels
+deep inside `HelloCEF.app/Contents/Frameworks/HelloCEF Helper.app/Contents/MacOS/`),
+and dyld would refuse to launch it.
 
-## What `build.sh` does
+## The Run Script Build Phase
 
-1. `swift build -c release` → produces `HelloCEF` and `HelloCEFHelper`
-   executables in `.build/`
-2. Assembles a `HelloCEF.app` shell with `Contents/MacOS/HelloCEF` and the
-   `Info.plist`
-3. Runs `../../scripts/embed-cefkit.sh` to copy the framework + assemble
-   the 5 helper `.app` bundles + sign
+The `[CEFKit] Embed framework + helpers` build phase calls
+[`scripts/embed-cefkit.sh`](../../scripts/embed-cefkit.sh) which:
 
-In an Xcode project, step 3 is the entire integration — a Run Script Build
-Phase that calls `embed-cefkit.sh`. The rest is normal Xcode plumbing.
-See [`../../INTEGRATION.md`](../../INTEGRATION.md).
+1. Assembles 5 helper `.app` bundles from the `HelloCEFHelper` Mach-O + a
+   plist template — distinct bundle IDs (`{host}.helper{|.gpu|.renderer|.plugin|.alerts}`)
+2. Skips touching the framework (Xcode auto-embeds it from the `CCEF`
+   binary target via the standard SPM build chain) and skips host signing
+   (Xcode signs the host itself after the script)
+
+When run outside Xcode (e.g. via `scripts/build-demo.sh`) the same script
+does the framework copy + signing too, because no Xcode env vars are set.
