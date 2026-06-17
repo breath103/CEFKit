@@ -19,7 +19,7 @@ let package = Package(
         // CEF 144.0.28+ga64d412+chromium-144.0.7559.255 (arm64 only).
         .binaryTarget(
             name: "CCEF",
-            url: "https://github.com/breath103/CEFKit/releases/download/v0.1.0/CEF.xcframework.zip",
+            url: "https://github.com/breath103/CEFKit/releases/download/v0.1.1/CEF.xcframework.zip",
             checksum: "a73c43f8e4ad477c12d3e47cf93a1d0791a688f6e28acd6c010469bc58ecb5e1"
         ),
 
