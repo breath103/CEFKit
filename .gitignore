@@ -1,0 +1,34 @@
+# CEF binary distribution — 1GB+. Re-fetched via scripts/fetch-cef.sh.
+vendor/cef/
+vendor/cef.tar.bz2
+
+# Generated artifacts — published to GitHub Releases, not git.
+artifacts/
+
+# Build outputs.
+.build/
+Examples/*/build/
+*.xcframework
+
+# Xcode user state
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# Resolved package versions — let consumers resolve themselves
+Package.resolved
+
+# macOS
+.DS_Store
+
+# Logs / scratch
+*.log
+*.trace
+*.ips
+*.pcm
+
+# Editor noise
+.idea/
+.vscode/
+*.swp
+*~
