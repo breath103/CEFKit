@@ -60,6 +60,11 @@ NS_SWIFT_NAME(CEFWebView)
 @property (nonatomic, readonly) BOOL canGoForward;
 @property (nonatomic, readonly) BOOL isLoading;
 @property (nonatomic, readonly, nullable) NSString* title;
+/// Favicon for the current page, decoded by CEF's own image loader (fetched
+/// via `CefBrowserHost::DownloadImage` — uses the browser network stack, so
+/// cookies and cache apply). KVO-observable: nil while the page has no
+/// favicon, or until the download finishes.
+@property (nonatomic, readonly, nullable) NSImage* faviconImage;
 @property (nonatomic, weak, nullable) id<CEFNavigationDelegate> navigationDelegate;
 
 - (instancetype)initWithFrame:(NSRect)frame URL:(nullable NSURL*)url NS_DESIGNATED_INITIALIZER;

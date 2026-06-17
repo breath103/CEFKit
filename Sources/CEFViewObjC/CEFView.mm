@@ -11,9 +11,12 @@
 // still see them as readonly via the header.
 @interface CEFView ()
 @property (nonatomic, copy, nullable) NSString* title;
+@property (nonatomic, strong, nullable) NSImage* faviconImage;
 @property (nonatomic, assign) BOOL isLoading;
 @property (nonatomic, assign) BOOL canGoBack;
 @property (nonatomic, assign) BOOL canGoForward;
+- (void)_onFaviconImage:(nullable NSImage*)image forURL:(nullable NSString*)url;
+- (void)_setPendingFaviconURL:(nullable NSString*)url;
 
 - (void)_onLoadStartURL:(nullable NSURL*)url;
 - (void)_onLoadEndURL:(nullable NSURL*)url statusCode:(int)code;
@@ -27,6 +30,34 @@
 namespace {
 
 class _CEFClient;
+
+class _CEFFaviconCallback : public CefDownloadImageCallback {
+ public:
+  _CEFFaviconCallback(__weak CEFView* owner, NSString* requestedURL)
+      : owner_(owner), requestedURL_(requestedURL) {}
+  void OnDownloadImageFinished(const CefString& image_url, int http_status_code,
+                               CefRefPtr<CefImage> image) override {
+    NSImage* nsImage = nil;
+    if (image && http_status_code >= 200 && http_status_code < 400) {
+      int w = 0, h = 0;
+      CefRefPtr<CefBinaryValue> png = image->GetAsPNG(1.0f, true, w, h);
+      if (png && png->GetSize() > 0) {
+        NSMutableData* data = [NSMutableData dataWithLength:png->GetSize()];
+        png->GetData(data.mutableBytes, png->GetSize(), 0);
+        nsImage = [[NSImage alloc] initWithData:data];
+      }
+    }
+    __weak CEFView* owner = owner_;
+    NSString* url = requestedURL_;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [owner _onFaviconImage:nsImage forURL:url];
+    });
+  }
+ private:
+  __weak CEFView* owner_;
+  NSString* requestedURL_;
+  IMPLEMENT_REFCOUNTING(_CEFFaviconCallback);
+};
 
 class _CEFDevToolsObserver : public CefDevToolsMessageObserver {
  public:
@@ -120,6 +151,24 @@ class _CEFClient : public CefClient,
     });
   }
 
+  void OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
+                          const std::vector<CefString>& icon_urls) override {
+    __weak CEFView* o = owner_;
+    if (icon_urls.empty()) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [o _setPendingFaviconURL:nil];
+        o.faviconImage = nil;
+      });
+      return;
+    }
+    NSString* urlStr = [NSString stringWithUTF8String:icon_urls.front().ToString().c_str()];
+    dispatch_async(dispatch_get_main_queue(), ^{ [o _setPendingFaviconURL:urlStr]; });
+    CefRefPtr<CefDownloadImageCallback> cb = new _CEFFaviconCallback(owner_, urlStr);
+    browser->GetHost()->DownloadImage(icon_urls.front(), /*is_favicon=*/true,
+                                      /*max_image_size=*/64,
+                                      /*bypass_cache=*/false, cb);
+  }
+
   void OnTitleChange(CefRefPtr<CefBrowser>, const CefString& title) override {
     NSString* t = [NSString stringWithUTF8String:title.ToString().c_str()];
     __weak CEFView* o = owner_;
@@ -144,6 +193,7 @@ class _CEFClient : public CefClient,
   BOOL _browserCreated;
   int _nextEvalId;
   NSMutableDictionary<NSNumber*, void(^)(id _Nullable, NSError* _Nullable)>* _evalCallbacks;
+  NSString* _pendingFaviconURL;  // most recently requested icon URL; older callbacks drop
 }
 
 @synthesize URL = _URL;
@@ -291,7 +341,20 @@ class _CEFClient : public CefClient,
 
 #pragma mark - Delegate forwarding (events only — state is KVO)
 
+- (void)_setPendingFaviconURL:(NSString*)url {
+  _pendingFaviconURL = [url copy];
+}
+
+- (void)_onFaviconImage:(NSImage*)image forURL:(NSString*)url {
+  // Ignore stale callbacks: only the most recently requested icon URL wins.
+  if (![url isEqualToString:_pendingFaviconURL]) return;
+  self.faviconImage = image;
+}
+
 - (void)_onLoadStartURL:(NSURL*)url {
+  // New page → clear stale favicon until OnFaviconURLChange arrives.
+  [self _setPendingFaviconURL:nil];
+  self.faviconImage = nil;
   self.URL = url;  // KVO fires; covers redirects + history nav, not just load:
   id<CEFNavigationDelegate> d = self.navigationDelegate;
   if ([d respondsToSelector:@selector(webView:didStartProvisionalNavigation:)]) {
