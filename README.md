@@ -1,4 +1,4 @@
-# CEFView
+# CEFKit
 
 A Swift Package that gives you `CEFWebView` — a Chromium-backed `NSView` you
 drop into a macOS app the way you'd drop in a `WKWebView`. Backed by the
@@ -6,7 +6,7 @@ Chromium Embedded Framework (CEF).
 
 ```swift
 import AppKit
-import CEFView
+import CEFKit
 
 exit(Int32(CEFApplication.run {
     let win = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1024, height: 768),
@@ -45,14 +45,14 @@ See [`progress.md`](progress.md) for the running checklist.
 Sources/
   CEFWrapper/     C++ — libcef_dll wrapper (vendored from CEF, BSD-licensed)
   CEFViewObjC/    Obj-C++ — handler subclasses, glue, public Obj-C surface
-  CEFView/        Swift — re-exports + sugar (async/typed eval, convenience inits)
+  CEFKit/        Swift — re-exports + sugar (async/typed eval, convenience inits)
 
 Examples/Demo/    Standalone .app target that proves the package works end-to-end
 
 scripts/
   fetch-cef.sh        download + build the CEF binary distribution into vendor/cef/
   build-cef-artifacts.sh  package framework as CEF.xcframework into artifacts/
-  embed-cefview.sh        the script consumers wire into Xcode Run Script Phase
+  embed-cefkit.sh        the script consumers wire into Xcode Run Script Phase
   build-demo.sh           local build of Examples/Demo
   helper.plist.in         template the embed script fills out for each helper
 
@@ -98,4 +98,4 @@ script copies that binary into all 5 helper `.app` bundles at build time.
 
 CEF (vendored portions in `Sources/CEFWrapper/`) is BSD-licensed; see
 `vendor/cef/LICENSE.txt` after fetching. Code in `Sources/CEFViewObjC/` and
-`Sources/CEFView/` is original work — TBD license.
+`Sources/CEFKit/` is original work — TBD license.

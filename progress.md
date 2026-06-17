@@ -1,4 +1,4 @@
-# CEFView — Progress Tracker
+# CEFKit — Progress Tracker
 
 **Rule:** update this file after every meaningful step. Check boxes as we go. If a step is blocked, write WHY inline.
 
@@ -29,7 +29,7 @@
 - [DECISION] libcef_dll_wrapper ships as **source** in SwiftPM C++ target (not prebuilt .a). Simpler, consumers already have C++ toolchain via Xcode. libcef_dll_wrapper sources live in `vendor/cef/libcef_dll/` + headers in `vendor/cef/include/`.
 
 ## Phase 2 — SwiftPM skeleton ✅
-- [x] `Package.swift` written (4 targets: CCEF binaryTarget, CEFWrapper C++, CEFViewObjC Obj-C++, CEFView Swift)
+- [x] `Package.swift` written (4 targets: CCEF binaryTarget, CEFWrapper C++, CEFViewObjC Obj-C++, CEFKit Swift)
 - [x] CEF headers + libcef_dll vendored into `Sources/CEFWrapper/`
 - [x] Obj-C++ stub `CEFBootstrap.mm` references CEF version constant → proves header chain works
 - [x] Swift stub `CEF.isAvailable` calls into ObjC layer → proves cross-language wiring
@@ -53,7 +53,7 @@
 - [x] **Swift extension `CEFWebView+Swift.swift`**: typed `evaluateJavaScript<T:Decodable>(_:as:) async throws -> T` (DevTools RemoteObject unwrap + JSON re-encode → JSONDecoder)
 - [x] `CEFConfiguration` Swift convenience init
 - [x] Swift demo `demo_main.swift` consumes ONLY the Swift API — verified live, page loaded, window title swapped via delegate, 5 helpers + 2 renderers spawned
-- [ ] `CEFViewRepresentable` for SwiftUI — deferred (per user: "much later")
+- [ ] `CEFWebViewRepresentable` for SwiftUI — deferred (per user: "much later")
 - [ ] External message pump (CefDoMessageLoopWork) for SwiftUI App lifecycle — deferred
 
 ### Known dev-only friction
@@ -76,10 +76,10 @@ Bisection narrowed the regression to **our compiled binary**, even when:
 
 The hang is inside `cef_initialize` → `cef_dump_without_crashing_unthrottled` per `sample`.
 Likely cause: subtle compile-flag or symbol-visibility mismatch between our compiled
-CEFApplication.mm/CEFView.mm and what CEF expects. To investigate fresh:
+CEFApplication.mm/CEFKit.mm and what CEF expects. To investigate fresh:
 1. Diff link commands between cefsimple (which works) and our demo (which doesn't): `otool -L`, `nm | grep CEF`
 2. Try linking our .mm files with `-fno-objc-arc` (cefsimple uses manual refcounting; CEF mixes both poorly?)
-3. Bisect by stripping our CEFView's _CEFClient → CefClient-only inheritance
+3. Bisect by stripping our CEFKit's _CEFClient → CefClient-only inheritance
 4. Compare CefMainArgs argv with cefsimple's at the exact moment they're constructed
 
 ## Phase 4 — Helpers + embedding ✅
@@ -101,7 +101,7 @@ CEFApplication.mm/CEFView.mm and what CEF expects. To investigate fresh:
 - [ ] Patch helper bundle IDs to `{host}.helper(.gpu|.plugin|.renderer)`
 
 ## Phase 5 — Entitlements docs
-- [ ] Ship `CEFView.entitlements` template
+- [ ] Ship `CEFKit.entitlements` template
 - [ ] README: signing + notarization
 
 ## Phase 6 — Distribution

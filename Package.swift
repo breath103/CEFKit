@@ -2,10 +2,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "CEFView",
+    name: "CEFKit",
     platforms: [.macOS(.v12)],
     products: [
-        .library(name: "CEFView", targets: ["CEFView"]),
+        .library(name: "CEFKit", targets: ["CEFKit"]),
     ],
     targets: [
         // Prebuilt Chromium Embedded Framework, downloaded as XCFramework.
@@ -51,17 +51,18 @@ let package = Package(
             ]
         ),
 
-        // Public Swift API: CEFView (NSView) + SwiftUI representable.
+        // Public Swift API: re-exports + sugar (typed/async evaluateJavaScript,
+        // CEFConfiguration convenience init). Marquee type is CEFWebView.
         .target(
-            name: "CEFView",
+            name: "CEFKit",
             dependencies: ["CEFViewObjC", "CCEF"],
-            path: "Sources/CEFView"
+            path: "Sources/CEFKit"
         ),
 
         .testTarget(
-            name: "CEFViewTests",
-            dependencies: ["CEFView"],
-            path: "Tests/CEFViewTests"
+            name: "CEFKitTests",
+            dependencies: ["CEFKit"],
+            path: "Tests/CEFKitTests"
         ),
     ],
     cxxLanguageStandard: .cxx17

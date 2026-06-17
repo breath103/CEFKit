@@ -1,10 +1,11 @@
 import XCTest
-@testable import CEFView
+@testable import CEFKit
 
-final class CEFViewTests: XCTestCase {
+final class CEFKitTests: XCTestCase {
     func testTypesAreExposed() {
         // Just exercise the import — runtime CEF init requires bundle embedding.
         _ = CEFApplication.self
-        _ = CEFView.self
+        _ = CEFWebView.self
+        _ = CEFConfiguration.self
     }
 }

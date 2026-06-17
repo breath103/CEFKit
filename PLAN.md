@@ -1,6 +1,6 @@
-# CEFView — CEF-backed WebView for macOS, distributed via SPM
+# CEFKit — CEF-backed WebView for macOS, distributed via SPM
 
-Goal: a Swift package that exposes a `CEFView` (NSView/SwiftUI) you `import CEFView` and drop in like `WKWebView`, backed by a precompiled Chromium Embedded Framework binary.
+Goal: a Swift package that exposes a `CEFKit` (NSView/SwiftUI) you `import CEFKit` and drop in like `WKWebView`, backed by a precompiled Chromium Embedded Framework binary.
 
 ---
 
@@ -13,7 +13,7 @@ WKWebView is one class. CEF is a **multi-process** framework with strict packagi
 - **CEF wrapper** (`libcef_dll_wrapper`) — C++ static lib you build yourself from CEF sources; bridges the C API.
 - **Code signing** — every helper + the framework must be signed; hardened runtime needs specific entitlements or Chromium's sandbox/JIT will crash.
 
-This is the part that makes "just import CEFView" hard. The package has to ship the framework, the helper apps, and a build-phase script that copies + re-signs them into the consumer's app bundle.
+This is the part that makes "just import CEFKit" hard. The package has to ship the framework, the helper apps, and a build-phase script that copies + re-signs them into the consumer's app bundle.
 
 ---
 
@@ -22,13 +22,13 @@ This is the part that makes "just import CEFView" hard. The package has to ship 
 ```
 ┌─────────────────────────────────────────────┐
 │ Consumer macOS app (Xcode)                  │
-│   import CEFView                            │
-│   CEFView(url:)  ← SwiftUI / NSViewRep      │
+│   import CEFKit                            │
+│   CEFKit(url:)  ← SwiftUI / NSViewRep      │
 └──────────────┬──────────────────────────────┘
                │ SPM dependency
 ┌──────────────▼──────────────────────────────┐
-│ Package: CEFView                            │
-│  ├─ CEFView         (Swift, public API)     │
+│ Package: CEFKit                            │
+│  ├─ CEFKit         (Swift, public API)     │
 │  ├─ CEFViewObjC     (Obj-C++ glue)          │
 │  ├─ CEFWrapper      (C++ libcef_dll_wrapper)│
 │  ├─ CCEF            (binaryTarget .xcframe) │ ← Chromium Embedded Framework.framework
@@ -68,12 +68,12 @@ Key decisions:
 - [ ] `CCEF` binaryTarget pointing at a GitHub release zip + sha256.
 - [ ] `CEFWrapper` C++ target with `cxxSettings` for C++17, header search paths into CEF includes.
 - [ ] `CEFViewObjC` Obj-C++ target depending on `CEFWrapper` + `CCEF`.
-- [ ] `CEFView` Swift target depending on `CEFViewObjC`.
+- [ ] `CEFKit` Swift target depending on `CEFViewObjC`.
 - [ ] Verify `swift build` succeeds on a stub that just calls `CefInitialize`/`CefShutdown`.
 
 ### Phase 3 — Public API
-- [ ] `CEFView: NSView` with `load(URLRequest)`, `loadHTMLString(_:baseURL:)`, `goBack`, `goForward`, `reload`, `stopLoading`, `evaluateJavaScript(_:completionHandler:)`.
-- [ ] `CEFViewRepresentable: NSViewRepresentable` for SwiftUI.
+- [ ] `CEFKit: NSView` with `load(URLRequest)`, `loadHTMLString(_:baseURL:)`, `goBack`, `goForward`, `reload`, `stopLoading`, `evaluateJavaScript(_:completionHandler:)`.
+- [ ] `CEFWebViewRepresentable: NSViewRepresentable` for SwiftUI.
 - [ ] `CEFNavigationDelegate` protocol mirroring `WKNavigationDelegate` essentials.
 - [ ] `CEFConfiguration` (user agent, cache path, locale, command-line switches).
 - [ ] One-shot `CEF.bootstrap()` that calls `CefInitialize` on first use; `CefDoMessageLoopWork` integration with `NSRunLoop` via external pump (use `CefSettings.external_message_pump = true` + a CVDisplayLink or `CFRunLoopTimer`).
@@ -89,7 +89,7 @@ Key decisions:
 - [ ] **Caveat:** SPM build-tool plugins have limited access to the final `.app` bundle. May need to fall back to a `.xcconfig` + Run Script Phase that consumers add manually. Document both paths.
 
 ### Phase 5 — Entitlements + signing docs
-- [ ] Ship a `CEFView.entitlements` template the consumer merges into their app entitlements (JIT, allow-unsigned-executable-memory, disable-library-validation, hardened runtime exceptions).
+- [ ] Ship a `CEFKit.entitlements` template the consumer merges into their app entitlements (JIT, allow-unsigned-executable-memory, disable-library-validation, hardened runtime exceptions).
 - [ ] README section: notarization gotchas (helpers must be notarized separately or as part of the host app submission).
 
 ### Phase 6 — Distribution
@@ -129,6 +129,6 @@ Key decisions:
 1. Download CEF arm64 binary distribution for current stable.
 2. Build + run `cefsimple` from the Xcode project it ships with. Take notes on bundle layout.
 3. Build `libcef_dll_wrapper` standalone via CMake.
-4. Stand up empty `CEFView` SwiftPM package with `CCEF` binaryTarget pointing at a locally-hosted zip; confirm `swift build` resolves.
+4. Stand up empty `CEFKit` SwiftPM package with `CCEF` binaryTarget pointing at a locally-hosted zip; confirm `swift build` resolves.
 
 Stop after step 4 and re-evaluate Phase 4 plugin feasibility before going further.

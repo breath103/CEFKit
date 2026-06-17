@@ -9,17 +9,17 @@
 #   BUILT_PRODUCTS_DIR     — $TARGET_BUILD_DIR from Xcode
 #   PRODUCT_NAME           — host app target name (no .app suffix)
 #   PRODUCT_BUNDLE_IDENTIFIER — host bundle id (e.g. com.acme.MyApp)
-#   CEFVIEW_FRAMEWORK_PATH — path to "Chromium Embedded Framework.framework"
-#   CEFVIEW_HELPER_PATH    — path to a prebuilt helper executable (one binary
+#   CEFKIT_FRAMEWORK_PATH — path to "Chromium Embedded Framework.framework"
+#   CEFKIT_HELPER_PATH    — path to a prebuilt helper executable (one binary
 #                            is reused for all 5 helpers, only plist differs)
-#   CEFVIEW_HELPER_PLIST   — path to helper.plist.in template
+#   CEFKIT_HELPER_PLIST   — path to helper.plist.in template
 #
 # Optional env:
 #   EXPANDED_CODE_SIGN_IDENTITY — Xcode-provided signing identity (default: -)
 #
 # Standalone usage:
 #   BUILT_PRODUCTS_DIR=out PRODUCT_NAME=Demo PRODUCT_BUNDLE_IDENTIFIER=foo.demo \
-#   CEFVIEW_FRAMEWORK_PATH=... CEFVIEW_HELPER_PATH=... CEFVIEW_HELPER_PLIST=... \
+#   CEFKIT_FRAMEWORK_PATH=... CEFKIT_HELPER_PATH=... CEFKIT_HELPER_PLIST=... \
 #   ./scripts/embed-cefview.sh
 
 set -euo pipefail
@@ -27,9 +27,9 @@ set -euo pipefail
 : "${BUILT_PRODUCTS_DIR:?required}"
 : "${PRODUCT_NAME:?required}"
 : "${PRODUCT_BUNDLE_IDENTIFIER:?required}"
-: "${CEFVIEW_FRAMEWORK_PATH:?required}"
-: "${CEFVIEW_HELPER_PATH:?required}"
-: "${CEFVIEW_HELPER_PLIST:?required}"
+: "${CEFKIT_FRAMEWORK_PATH:?required}"
+: "${CEFKIT_HELPER_PATH:?required}"
+: "${CEFKIT_HELPER_PLIST:?required}"
 
 SIGN_ID="${EXPANDED_CODE_SIGN_IDENTITY:--}"
 APP="$BUILT_PRODUCTS_DIR/$PRODUCT_NAME.app"
@@ -38,11 +38,11 @@ FRAMEWORKS="$APP/Contents/Frameworks"
 [[ -d "$APP" ]] || { echo "error: host app not found at $APP" >&2; exit 1; }
 mkdir -p "$FRAMEWORKS"
 
-echo "[CEFView] embedding into $APP"
+echo "[CEFKit] embedding into $APP"
 
-echo "[CEFView]  → copying Chromium Embedded Framework"
+echo "[CEFKit]  → copying Chromium Embedded Framework"
 rm -rf "$FRAMEWORKS/Chromium Embedded Framework.framework"
-cp -R "$CEFVIEW_FRAMEWORK_PATH" "$FRAMEWORKS/Chromium Embedded Framework.framework"
+cp -R "$CEFKIT_FRAMEWORK_PATH" "$FRAMEWORKS/Chromium Embedded Framework.framework"
 
 embed_helper() {
   local label="$1"      # ""  | " (GPU)" | " (Renderer)" | " (Plugin)" | " (Alerts)"
@@ -53,21 +53,21 @@ embed_helper() {
 
   rm -rf "$app"
   mkdir -p "$app/Contents/MacOS"
-  cp "$CEFVIEW_HELPER_PATH" "$app/Contents/MacOS/${exec_name}"
+  cp "$CEFKIT_HELPER_PATH" "$app/Contents/MacOS/${exec_name}"
 
   sed -e "s|__EXECUTABLE_NAME__|${exec_name}|g" \
       -e "s|__BUNDLE_ID__|${bundle_id}|g" \
-      "$CEFVIEW_HELPER_PLIST" > "$app/Contents/Info.plist"
+      "$CEFKIT_HELPER_PLIST" > "$app/Contents/Info.plist"
 }
 
-echo "[CEFView]  → assembling 5 helper bundles"
+echo "[CEFKit]  → assembling 5 helper bundles"
 embed_helper ""            ""
 embed_helper " (GPU)"      ".gpu"
 embed_helper " (Renderer)" ".renderer"
 embed_helper " (Plugin)"   ".plugin"
 embed_helper " (Alerts)"   ".alerts"
 
-echo "[CEFView]  → signing framework (identity: $SIGN_ID)"
+echo "[CEFKit]  → signing framework (identity: $SIGN_ID)"
 codesign --force --sign "$SIGN_ID" --timestamp=none \
   "$FRAMEWORKS/Chromium Embedded Framework.framework"
 
@@ -76,7 +76,7 @@ codesign --force --sign "$SIGN_ID" --timestamp=none \
 # Re-codesigning the bundle wraps the binary in a new sig and breaks helpers
 # with a CHECK fail in cef_execute_process.
 
-echo "[CEFView]  → signing host"
+echo "[CEFKit]  → signing host"
 codesign --force --sign "$SIGN_ID" --timestamp=none "$APP"
 
-echo "[CEFView]  done"
+echo "[CEFKit]  done"

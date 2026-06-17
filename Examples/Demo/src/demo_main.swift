@@ -1,10 +1,10 @@
-// Swift consumer of the CEFView package. Exercises:
+// Swift consumer of the CEFKit package. Exercises:
 //   - CEFApplication.run(configuration:setup:) with a CEFConfiguration
 //   - CEFWebView creation + delegate + load/eval
 //   - async/await JS eval with typed decoding
 
 import AppKit
-import CEFView
+import CEFKit
 
 final class DemoDelegate: NSObject, NSApplicationDelegate, CEFNavigationDelegate {
     var window: NSWindow!

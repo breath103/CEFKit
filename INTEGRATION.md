@@ -1,6 +1,6 @@
-# Integrating CEFView into a macOS app
+# Integrating CEFKit into a macOS app
 
-This is the WKWebView-style integration story. You add CEFView as a Swift
+This is the WKWebView-style integration story. You add CEFKit as a Swift
 Package dependency in Xcode, add one Run Script Build Phase, and ship.
 
 ---
@@ -12,13 +12,13 @@ your host's `Contents/Frameworks/` directory. SwiftPM has no concept of
 embedding nested `.app` bundles, so the package ships:
 
 - `Chromium Embedded Framework.framework` as an XCFramework (binaryTarget) —
-  Xcode embeds it for you automatically when you depend on the `CEFView`
+  Xcode embeds it for you automatically when you depend on the `CEFKit`
   product.
 - A prebuilt **helper executable** + plist template — your Run Script copies
   this into five `.app` bundles named `${PRODUCT_NAME} Helper{|.GPU|.Renderer|.Plugin|.Alerts}.app`.
 
 You write **zero** custom embed logic. The package provides
-`scripts/embed-cefview.sh`. Your Run Script Phase invokes it.
+`scripts/embed-cefkit.sh`. Your Run Script Phase invokes it.
 
 ---
 
@@ -26,13 +26,13 @@ You write **zero** custom embed logic. The package provides
 
 1. **File → Add Package Dependencies…**
 2. Enter the package URL (or pick "Add Local…" pointing at your checkout).
-3. Add the `CEFView` library product to your app target.
+3. Add the `CEFKit` library product to your app target.
 
 In your code:
 
 ```swift
 import AppKit
-import CEFView
+import CEFKit
 
 @main
 struct App {
@@ -56,12 +56,12 @@ form (literally one line):
 
 ```swift
 // HelperApp/main.swift
-import CEFView
+import CEFKit
 exit(Int32(CEFApplication.runHelper()))
 ```
 
 In Xcode: create a second target of type **Command Line Tool**, link the
-`CEFView` library, set its bundle identifier to `${PRODUCT_BUNDLE_IDENTIFIER}.helper.shared`
+`CEFKit` library, set its bundle identifier to `${PRODUCT_BUNDLE_IDENTIFIER}.helper.shared`
 or similar. The Run Script (below) copies this binary into all five helper
 slots — you do not create five helper targets.
 
@@ -74,7 +74,7 @@ Place it **after** "Embed Frameworks" but **before** any code-signing-only
 phases.
 
 ```sh
-"$BUILD_DIR/../../SourcePackages/checkouts/CEFView/scripts/embed-cefview.sh"
+"$BUILD_DIR/../../SourcePackages/checkouts/CEFKit/scripts/embed-cefkit.sh"
 ```
 
 Required environment variables (Xcode already sets the first three; you set
@@ -86,19 +86,19 @@ shell vars, OR inline):
 | `BUILT_PRODUCTS_DIR` | provided by Xcode |
 | `PRODUCT_NAME` | provided by Xcode |
 | `PRODUCT_BUNDLE_IDENTIFIER` | provided by Xcode |
-| `CEFVIEW_FRAMEWORK_PATH` | path to `Chromium Embedded Framework.framework` shipped by the package |
-| `CEFVIEW_HELPER_PATH` | path to your built helper Mach-O executable (e.g. `$BUILT_PRODUCTS_DIR/MyAppHelper`) |
-| `CEFVIEW_HELPER_PLIST` | `$SRCROOT/../SourcePackages/checkouts/CEFView/scripts/helper.plist.in` |
+| `CEFKIT_FRAMEWORK_PATH` | path to `Chromium Embedded Framework.framework` shipped by the package |
+| `CEFKIT_HELPER_PATH` | path to your built helper Mach-O executable (e.g. `$BUILT_PRODUCTS_DIR/MyAppHelper`) |
+| `CEFKIT_HELPER_PLIST` | `$SRCROOT/../SourcePackages/checkouts/CEFKit/scripts/helper.plist.in` |
 | `EXPANDED_CODE_SIGN_IDENTITY` | provided by Xcode |
 
 Suggested inline script body:
 
 ```sh
-PKG="$BUILD_DIR/../../SourcePackages/checkouts/CEFView"
-export CEFVIEW_FRAMEWORK_PATH="$PKG/artifacts/CEF.xcframework/macos-arm64/Chromium Embedded Framework.framework"
-export CEFVIEW_HELPER_PATH="$BUILT_PRODUCTS_DIR/MyAppHelper"
-export CEFVIEW_HELPER_PLIST="$PKG/scripts/helper.plist.in"
-"$PKG/scripts/embed-cefview.sh"
+PKG="$BUILD_DIR/../../SourcePackages/checkouts/CEFKit"
+export CEFKIT_FRAMEWORK_PATH="$PKG/artifacts/CEF.xcframework/macos-arm64/Chromium Embedded Framework.framework"
+export CEFKIT_HELPER_PATH="$BUILT_PRODUCTS_DIR/MyAppHelper"
+export CEFKIT_HELPER_PLIST="$PKG/scripts/helper.plist.in"
+"$PKG/scripts/embed-cefkit.sh"
 ```
 
 ---

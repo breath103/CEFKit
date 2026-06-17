@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Build Examples/Demo/Demo.app — pure Swift consumer of the CEFView package.
-# Delegates the CEF embedding step to scripts/embed-cefview.sh (the same script
+# Build Examples/Demo/Demo.app — pure Swift consumer of the CEFKit package.
+# Delegates the CEF embedding step to scripts/embed-cefkit.sh (the same script
 # downstream consumers wire into their Xcode Run Script Build Phase).
 
 set -euo pipefail
@@ -18,14 +18,14 @@ echo "==> swift build (release)"
 SPM_REL="$ROOT/.build/$ARCH-apple-macosx/release"
 CEFWRAPPER_LIB="$BUILD/libCEFWrapper.a"
 CEFOBJC_LIB="$BUILD/libCEFViewObjC.a"
-CEFVIEW_LIB="$BUILD/libCEFView.a"
+CEFKIT_LIB="$BUILD/libCEFKit.a"
 mkdir -p "$BUILD"
 
 echo "==> archiving SwiftPM build outputs"
-rm -f "$CEFWRAPPER_LIB" "$CEFOBJC_LIB" "$CEFVIEW_LIB"
+rm -f "$CEFWRAPPER_LIB" "$CEFOBJC_LIB" "$CEFKIT_LIB"
 find "$SPM_REL/CEFWrapper.build"   -name '*.o' -print0 | xargs -0 ar rcs "$CEFWRAPPER_LIB"
 find "$SPM_REL/CEFViewObjC.build"  -name '*.o' -print0 | xargs -0 ar rcs "$CEFOBJC_LIB"
-find "$SPM_REL/CEFView.build"      -name '*.o' -print0 | xargs -0 ar rcs "$CEFVIEW_LIB"
+find "$SPM_REL/CEFKit.build"       -name '*.o' -print0 | xargs -0 ar rcs "$CEFKIT_LIB"
 
 SWIFTC_COMMON=(
   -target "${ARCH}-apple-macosx12.0"
@@ -33,7 +33,7 @@ SWIFTC_COMMON=(
   -Xcc -fmodule-map-file="$SPM_REL/CEFViewObjC.build/module.modulemap"
   -Xcc -fmodule-map-file="$SPM_REL/CEFWrapper.build/module.modulemap"
   -L "$BUILD"
-  -lCEFView -lCEFViewObjC -lCEFWrapper
+  -lCEFKit -lCEFViewObjC -lCEFWrapper
   -framework Cocoa -framework AppKit
   -Xlinker -search_paths_first
   -Xlinker -ObjC
@@ -55,14 +55,14 @@ clang++ -std=c++17 -fno-rtti -fno-exceptions -mmacosx-version-min=12.0 -arch arm
 
 cp "$DEMO/resources/host.plist" "$APP/Contents/Info.plist"
 
-echo "==> embedding via embed-cefview.sh"
+echo "==> embedding via embed-cefkit.sh"
 BUILT_PRODUCTS_DIR="$BUILD" \
 PRODUCT_NAME="Demo" \
 PRODUCT_BUNDLE_IDENTIFIER="work.mirror.cefview.demo" \
-CEFVIEW_FRAMEWORK_PATH="$CEF/Release/Chromium Embedded Framework.framework" \
-CEFVIEW_HELPER_PATH="$HELPER_BIN" \
-CEFVIEW_HELPER_PLIST="$ROOT/scripts/helper.plist.in" \
-  "$ROOT/scripts/embed-cefview.sh"
+CEFKIT_FRAMEWORK_PATH="$CEF/Release/Chromium Embedded Framework.framework" \
+CEFKIT_HELPER_PATH="$HELPER_BIN" \
+CEFKIT_HELPER_PLIST="$ROOT/scripts/helper.plist.in" \
+  "$ROOT/scripts/embed-cefkit.sh"
 
 echo "Demo.app built: $APP"
 du -sh "$APP"
