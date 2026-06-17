@@ -19,10 +19,9 @@ final class BrowserTab: Identifiable {
     }
 }
 
-@Observable
-final class TabStore {
-    var tabs: [BrowserTab] = []
-    var selectedID: BrowserTab.ID?
+final class TabStore: ObservableObject {
+    @Published var tabs: [BrowserTab] = []
+    @Published var selectedID: BrowserTab.ID?
 
     func newTab(_ url: URL = URL(string: "https://example.com")!) {
         let tab = BrowserTab(url: url)
@@ -34,31 +33,33 @@ final class TabStore {
 struct TabRow: View {
     let tab: BrowserTab
     var body: some View {
-        let o = tab.webView.observable
-        let title = (o.title?.isEmpty == false ? o.title : nil) ?? o.url?.host ?? "new tab"
         HStack(spacing: 6) {
-            if o.isLoading {
+            if tab.webView.observable.isLoading {
                 ProgressView().controlSize(.small)
             }
-            Text(title)
+            Text(tabLabel)
                 .lineLimit(1)
                 .truncationMode(.tail)
         }
+    }
+    private var tabLabel: String {
+        let title = tab.webView.observable.title
+        if let title, !title.isEmpty { return title }
+        return tab.webView.observable.url?.host ?? "new tab"
     }
 }
 
 struct AddressBar: View {
     let tab: BrowserTab?
     var body: some View {
-        let o = tab?.webView.observable
         HStack(spacing: 8) {
             Button { tab?.webView.goBack() } label: { Image(systemName: "chevron.left") }
-                .disabled(o?.canGoBack != true)
+                .disabled(tab?.webView.observable.canGoBack != true)
                 .help("Back")
             Button { tab?.webView.goForward() } label: { Image(systemName: "chevron.right") }
-                .disabled(o?.canGoForward != true)
+                .disabled(tab?.webView.observable.canGoForward != true)
                 .help("Forward")
-            Text(o?.url?.absoluteString ?? "")
+            Text(tab?.webView.observable.url?.absoluteString ?? "")
                 .font(.system(.body, design: .monospaced))
                 .lineLimit(1)
                 .truncationMode(.middle)
@@ -73,7 +74,7 @@ struct AddressBar: View {
 }
 
 struct ContentView: View {
-    let store: TabStore
+    @ObservedObject var store: TabStore
 
     var body: some View {
         NavigationSplitView {
