@@ -20,6 +20,17 @@ exit(Int32(CEFApplication.run {
 
 That's the whole demo. Real consumer setup is in [`INTEGRATION.md`](INTEGRATION.md).
 
+## Install
+
+```swift
+// Package.swift
+.package(url: "https://github.com/breath103/CEFKit.git", from: "0.1.1"),
+```
+
+Then add `CEFKit` to your host app target's dependencies and `CEFKitHelper`
+to your helper-executable target. See [`Examples/HelloCEF`](Examples/HelloCEF)
+for a working Xcode project that does exactly this.
+
 ---
 
 ## Status
@@ -32,7 +43,7 @@ That's the whole demo. Real consumer setup is in [`INTEGRATION.md`](INTEGRATION.
 | 3 | WKWebView-shaped public API (Swift + ObjC) | ✅ |
 | 4 | reusable Xcode embed script | ✅ |
 | 5 | entitlements template + hardened-runtime docs | pending |
-| 6 | GitHub Release distribution of CEF.xcframework | pending |
+| 6 | GitHub Release distribution of CEF.xcframework | ✅ v0.1.1 |
 | 7 | DevTools, cookies, scheme handlers, OSR | pending |
 
 See [`progress.md`](progress.md) for the running checklist.
