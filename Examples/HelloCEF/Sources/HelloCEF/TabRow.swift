@@ -1,24 +1,33 @@
 import SwiftUI
 
-/// Row in the sidebar list. Binds to `webView.observable.*` so the favicon,
-/// spinner, and title redraw as CEF state changes.
+/// Row in the sidebar list. Reads from `tab.display*` which already collapse
+/// live `webView.observable.*` and the hibernation snapshot. Hibernated rows
+/// dim themselves and sprout a `moon.zzz` badge.
 struct TabRow: View {
     let tab: BrowserTab
+
     var body: some View {
         HStack(spacing: 6) {
-            FaviconView(image: tab.webView.observable.favicon?.image)
-            if tab.webView.observable.isLoading {
+            FaviconView(image: tab.displayFavicon)
+            if let webView = tab.webView, webView.observable.isLoading {
                 ProgressView().controlSize(.small)
             }
-            Text(tabLabel)
+            Text(tab.displayTitle)
                 .lineLimit(1)
                 .truncationMode(.tail)
+            if tab.isHibernated {
+                Image(systemName: "moon.zzz.fill")
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("tabRow.hibernatedBadge")
+            }
         }
-    }
-
-    private var tabLabel: String {
-        let title = tab.webView.observable.title
-        if let title, !title.isEmpty { return title }
-        return tab.webView.observable.url?.host ?? "new tab"
+        .opacity(tab.isHibernated ? 0.55 : 1)
+        .contextMenu {
+            if tab.isHibernated {
+                Button("Wake up") { tab.wake() }
+            } else {
+                Button("Hibernate") { tab.hibernate() }
+            }
+        }
     }
 }
