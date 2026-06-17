@@ -24,7 +24,7 @@ struct ContentView: View {
             .frame(minWidth: 220)
         } detail: {
             VStack(spacing: 0) {
-                AddressBar(tab: store.tabs.first { $0.id == store.selectedID })
+                AddressBar(tab: store.selectedTab)
                 ZStack {
                     ForEach(store.tabs) { tab in
                         if let webView = tab.webView {
@@ -35,15 +35,6 @@ struct ContentView: View {
                     }
                 }
             }
-        }
-        .onChange(of: store.selectedID) { _, newID in
-            // Selecting a hibernated tab wakes it immediately so the user
-            // sees a live page instead of an empty detail area.
-            guard let id = newID,
-                  let tab = store.tabs.first(where: { $0.id == id }),
-                  tab.isHibernated
-            else { return }
-            tab.wake()
         }
     }
 }
