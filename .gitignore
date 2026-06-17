@@ -11,9 +11,10 @@ Examples/*/build/
 *.xcframework
 
 # Xcode user state
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
-*.xcworkspace/xcuserdata/
+**/*.xcodeproj/xcuserdata/
+**/*.xcodeproj/project.xcworkspace/xcuserdata/
+**/*.xcworkspace/xcuserdata/
+**/xcuserdata/
 .swiftpm/
 DerivedData/
 
