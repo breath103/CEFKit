@@ -122,10 +122,22 @@ the script automatically.
 
 ---
 
-## Entitlements
+## Hardened runtime, entitlements, notarization
 
-For hardened runtime / notarization you need a few exception entitlements
-because Chromium uses JIT and dlopens the framework:
+For Developer ID distribution (the typical "ship outside the Mac App Store"
+path) macOS requires Hardened Runtime, which blocks the things Chromium
+needs by default — V8's JIT, executable-memory writes during V8 startup,
+and cross-bundle `dlopen` of the framework from helper executables.
+
+We ship two ready-made entitlements templates in this package. Copy them
+into your project and point your targets at them:
+
+| Template | Apply to |
+|---|---|
+| `Resources/entitlements/CEFKit.host.entitlements` | Your host app target (`CODE_SIGN_ENTITLEMENTS` build setting) |
+| `Resources/entitlements/CEFKit.helper.entitlements` | Your helper executable target |
+
+Both files set:
 
 ```xml
 <key>com.apple.security.cs.allow-jit</key><true/>
@@ -133,10 +145,48 @@ because Chromium uses JIT and dlopens the framework:
 <key>com.apple.security.cs.disable-library-validation</key><true/>
 ```
 
-Add these to your host target's `.entitlements`. **App Sandbox is
-incompatible** with CEF in this configuration (Chromium runs its own sandbox)
-— do not enable the App Sandbox capability. This means Mac App Store
-distribution is not supported.
+These are exceptions to Hardened Runtime — they tell macOS that yes, this
+process really does need to JIT, mark memory as executable, and load
+libraries that weren't signed by the same team.
+
+**App Sandbox.** Don't enable the App Sandbox capability. CEF/Chromium runs
+its own multi-process sandbox; layering Apple's App Sandbox on top breaks
+inter-process communication. Mac App Store distribution is therefore not
+supported.
+
+### Helper bundle signing under hardened runtime
+
+The `embed-cefkit.sh` script intentionally does **not** re-sign helper
+bundles (their linker-signed signatures are what Chromium's IPC handshake
+validates byte-for-byte in dev builds). For Developer ID + Hardened Runtime
+production builds you typically *do* need to re-sign helpers with your
+identity AND apply the helper entitlements file. This re-sign must happen
+*after* `embed-cefkit.sh` runs but *before* Xcode signs the host. If you
+need this in your build, add a second Run Script Phase after the CEFKit
+one:
+
+```sh
+HOST_BUNDLE_ID="$PRODUCT_BUNDLE_IDENTIFIER"
+ENT="$SRCROOT/path/to/CEFKit.helper.entitlements"
+for h in "$BUILT_PRODUCTS_DIR/$PRODUCT_NAME.app/Contents/Frameworks/"*Helper*.app; do
+  codesign --force --sign "$EXPANDED_CODE_SIGN_IDENTITY" \
+    --entitlements "$ENT" --timestamp --options runtime "$h"
+done
+```
+
+This pattern works in production (Slack, Discord, Notion all ship this way).
+Verify with `codesign --verify --deep --strict --verbose=4 YourApp.app` and
+test on a Mac without your dev cert installed before submitting for
+notarization.
+
+### Notarization checklist
+
+1. Apply both entitlements templates (host + helpers)
+2. Codesign helpers with your Developer ID + helper entitlements (Run Script above)
+3. Let Xcode handle the host signing (uses host entitlements via `CODE_SIGN_ENTITLEMENTS`)
+4. Archive (`xcodebuild archive ...`)
+5. `xcrun notarytool submit YourApp.zip --keychain-profile <profile> --wait`
+6. `xcrun stapler staple YourApp.app`
 
 ---
 

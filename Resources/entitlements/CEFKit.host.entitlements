@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Chromium uses V8, which JITs. Hardened runtime blocks executable
+       memory pages by default. -->
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+
+  <!-- V8 also writes to executable memory before sealing. -->
+  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+  <true/>
+
+  <!-- The helper executables dlopen Chromium Embedded Framework.framework
+       at runtime, which lives in the host bundle, not the helper bundle.
+       Without this, dyld refuses cross-bundle loads under hardened runtime. -->
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+
+  <!-- App Sandbox is incompatible with CEF — Chromium runs its own sandbox.
+       Do not add com.apple.security.app-sandbox to the host. Mac App Store
+       distribution is therefore not supported. -->
+</dict>
+</plist>
