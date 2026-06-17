@@ -5,14 +5,11 @@ import SwiftUI
 /// selected one is visible and hit-testable. Tearing down + recreating CEF
 /// views on tab-switch would be expensive and would lose page state.
 struct ContentView: View {
-    let store: TabStore
+    @Bindable var store: TabStore
 
     var body: some View {
         NavigationSplitView {
-            List(selection: Binding(
-                get: { store.selectedID },
-                set: { store.selectedID = $0 }
-            )) {
+            List(selection: $store.selectedID) {
                 ForEach(store.tabs) { tab in
                     TabRow(tab: tab).tag(tab.id)
                 }
