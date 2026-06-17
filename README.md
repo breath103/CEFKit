@@ -120,6 +120,48 @@ builds prompt once per user.
 
 ---
 
+## Updating to a new CEF version
+
+CEF releases roughly every 4 weeks (tracking Chromium). The full bump
+pipeline lives in [`scripts/bump-cef.sh`](scripts/bump-cef.sh):
+
+```sh
+./scripts/bump-cef.sh 145.0.5+gabc1234+chromium-145.0.7600.100 v0.2.0
+```
+
+(Copy the version string from <https://cef-builds.spotifycdn.com>.)
+
+The script:
+1. Verifies the version exists on the CEF builds CDN
+2. Updates `CEF_VERSION` in `scripts/fetch-cef.sh`
+3. Wipes `vendor/cef/` and re-fetches
+4. **Re-vendors `Sources/CEFWrapper/include/` + `libcef_dll/` from the new tarball** (header API drift between versions means wrapper sources MUST match the binary — this is the part you can't skip and that is easy to forget if doing it by hand)
+5. Rebuilds `artifacts/CEF.xcframework.zip`
+6. Computes the new sha256 and patches `Package.swift` to point at the next release URL + checksum
+7. Verifies `swift build` still passes against the new headers
+8. Prints the `git commit`, `git tag`, and `gh release create` commands to run
+
+You run those final commands manually so the bump is a single, reviewable
+commit landing on `main` simultaneously with the GitHub Release upload.
+
+## CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every PR and
+push to `main`:
+
+- `swift build -c release` — resolves the package, downloads CEF.xcframework
+  via the published Release URL, verifies its sha256, compiles the wrapper
+- `xcodebuild` — regenerates `Examples/HelloCEF.xcodeproj` from
+  `project.yml` via xcodegen, then builds it. Catches drift between the
+  committed Xcode project and the spec, and catches any embedding-script
+  regressions.
+
+There's no "deploy" CI: SPM has no central registry. Consumers resolve
+straight from the GitHub Release URL declared in `Package.swift`. Releases
+are cut manually via `scripts/bump-cef.sh` (above).
+
+---
+
 ## Architecture in one minute
 
 CEF is multi-process: one host process + 5 helper `.app`s embedded in

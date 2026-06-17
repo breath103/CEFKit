@@ -1,0 +1,65 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel older runs for the same PR / branch — only the latest commit's
+# verification matters.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swift-build:
+    name: swift build (package)
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain versions
+        run: |
+          swift --version
+          xcodebuild -version
+
+      # Sanity: package resolves and compiles. This implicitly downloads the
+      # CEF.xcframework.zip from the published Release URL declared in
+      # Package.swift, verifies its sha256, and links the wrapper sources.
+      # If the URL/checksum is broken or the headers don't match the binary,
+      # this step is where we catch it.
+      - name: swift build (release)
+        run: swift build -c release
+
+  xcode-build-hellocef:
+    name: xcodebuild (Examples/HelloCEF)
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # xcodegen regenerates HelloCEF.xcodeproj from project.yml on every PR,
+      # catching any drift between the committed .xcodeproj and the spec.
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Regenerate HelloCEF.xcodeproj
+        working-directory: Examples/HelloCEF
+        run: xcodegen generate
+
+      # Build for arm64 only. macos-15 runners may be x86_64 or arm64 depending
+      # on the queue; force arm64 to match the package's published slice.
+      - name: xcodebuild
+        working-directory: Examples/HelloCEF
+        run: |
+          xcodebuild \
+            -project HelloCEF.xcodeproj \
+            -scheme HelloCEF \
+            -configuration Debug \
+            -destination 'platform=macOS,arch=arm64' \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY=- \
+            build
