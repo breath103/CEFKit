@@ -84,12 +84,31 @@ targets:
       - package: CEFKit
         product: CEFKitHelper
 
+  # XCUITest target — drives the host app over the Accessibility bridge.
+  # Test-running spawns HelloCEF.app and treats it as the system-under-test.
+  HelloCEFUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: Tests/HelloCEFUITests
+    dependencies:
+      - target: HelloCEF
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.example.HelloCEFUITests
+      TEST_TARGET_NAME: HelloCEF
+      GENERATE_INFOPLIST_FILE: YES
+
 schemes:
   HelloCEF:
     build:
       targets:
         HelloCEFHelper: [build]
         HelloCEF: [build, run]
+        HelloCEFUITests: [test]
     run:
       config: Debug
       executable: HelloCEF
+    test:
+      config: Debug
+      targets:
+        - HelloCEFUITests

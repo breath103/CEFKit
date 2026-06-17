@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0B7358D957FE2297C021B670 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFAC388BE53B851FD295901 /* AppDelegate.swift */; };
 		2F1A3066E37B8E8E6A7C2A73 /* TabRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC7C6966EE82C0EA29D3642 /* TabRow.swift */; };
+		32AC7EB384F122023D6D7459 /* AddressBarUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12BC67A955873A4B42B546B /* AddressBarUITests.swift */; };
 		46CE3685B4EE99ABB5FCB1DC /* CEFKit in Frameworks */ = {isa = PBXBuildFile; productRef = CF71C10404166E067FC7258D /* CEFKit */; };
 		5CB7CBA0D9AF7B72733E5DF5 /* TabStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E738C740E5D9AEFE0275B7 /* TabStore.swift */; };
 		5D570BC3524EBC95C465CFFF /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61C9A19F926AA9AE9B58B50 /* main.swift */; };
@@ -21,6 +22,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		3FC5C765E27FB60BD728BFB6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FECF69303226A43E8CB90E77 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6ED85C9F76AF13BEA6D3CB40;
+			remoteInfo = HelloCEF;
+		};
 		F471607FBE68B37FC95578FB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FECF69303226A43E8CB90E77 /* Project object */;
@@ -41,8 +49,10 @@
 		6EDA69142391BB2B32811D17 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		7BB4DC6907C495D692A8C44E /* BrowserTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTab.swift; sourceTree = "<group>"; };
 		9DBAD8EF5201954E6DA0A8BE /* HelloCEFHelper */ = {isa = PBXFileReference; includeInIndex = 0; path = HelloCEFHelper; sourceTree = BUILT_PRODUCTS_DIR; };
+		B12BC67A955873A4B42B546B /* AddressBarUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarUITests.swift; sourceTree = "<group>"; };
 		BA0618ECD96F997C8E82E3FD /* AddressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBar.swift; sourceTree = "<group>"; };
 		C61C9A19F926AA9AE9B58B50 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		DEC5F40F84ACD1877362CF7E /* HelloCEFUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HelloCEFUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,8 +97,17 @@
 			children = (
 				4295F990AE5A15FCD455A472 /* Packages */,
 				33648EB395CCDA912E2B2066 /* Sources */,
+				DD9C355ECD98733022D860CE /* Tests */,
 				D2591141DC441036D87C2A4D /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		83566068C008F800597EC44C /* HelloCEFUITests */ = {
+			isa = PBXGroup;
+			children = (
+				B12BC67A955873A4B42B546B /* AddressBarUITests.swift */,
+			);
+			path = HelloCEFUITests;
 			sourceTree = "<group>";
 		};
 		885E74C010A970B74AEBFB93 /* HelloCEF */ = {
@@ -119,8 +138,17 @@
 			children = (
 				3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */,
 				9DBAD8EF5201954E6DA0A8BE /* HelloCEFHelper */,
+				DEC5F40F84ACD1877362CF7E /* HelloCEFUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DD9C355ECD98733022D860CE /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				83566068C008F800597EC44C /* HelloCEFUITests */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -166,6 +194,24 @@
 			productReference = 3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */;
 			productType = "com.apple.product-type.application";
 		};
+		EB9CF171FEA961C4D5DD7BB5 /* HelloCEFUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BF4B701779C3F509130DEB4C /* Build configuration list for PBXNativeTarget "HelloCEFUITests" */;
+			buildPhases = (
+				ACE3D03CEF6855745B04CAB3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4CCBF00FCA30ACA6BAB2CA89 /* PBXTargetDependency */,
+			);
+			name = HelloCEFUITests;
+			packageProductDependencies = (
+			);
+			productName = HelloCEFUITests;
+			productReference = DEC5F40F84ACD1877362CF7E /* HelloCEFUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -182,6 +228,11 @@
 					6ED85C9F76AF13BEA6D3CB40 = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Manual;
+					};
+					EB9CF171FEA961C4D5DD7BB5 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+						TestTargetID = 6ED85C9F76AF13BEA6D3CB40;
 					};
 				};
 			};
@@ -204,6 +255,7 @@
 			targets = (
 				6ED85C9F76AF13BEA6D3CB40 /* HelloCEF */,
 				117D1B1FBD834F3BFD0399B0 /* HelloCEFHelper */,
+				EB9CF171FEA961C4D5DD7BB5 /* HelloCEFUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -245,6 +297,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ACE3D03CEF6855745B04CAB3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32AC7EB384F122023D6D7459 /* AddressBarUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BF2C320C9C7230FC22BC9760 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,6 +316,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4CCBF00FCA30ACA6BAB2CA89 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6ED85C9F76AF13BEA6D3CB40 /* HelloCEF */;
+			targetProxy = 3FC5C765E27FB60BD728BFB6 /* PBXContainerItemProxy */;
+		};
 		D1E0B3BF396B136549688B0D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 117D1B1FBD834F3BFD0399B0 /* HelloCEFHelper */;
@@ -289,6 +354,23 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEFHelper;
 				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		1D2EC090064BA9244F78DA88 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEFUITests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = HelloCEF;
 			};
 			name = Debug;
 		};
@@ -449,6 +531,23 @@
 			};
 			name = Debug;
 		};
+		C23B3F353FEFE3B95A8492EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEFUITests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = HelloCEF;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -457,6 +556,15 @@
 			buildConfigurations = (
 				1891BDE46F71BF1D850CE558 /* Debug */,
 				2A580A34ADC281E45B74A74D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BF4B701779C3F509130DEB4C /* Build configuration list for PBXNativeTarget "HelloCEFUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1D2EC090064BA9244F78DA88 /* Debug */,
+				C23B3F353FEFE3B95A8492EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

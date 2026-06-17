@@ -35,6 +35,20 @@
                ReferencedContainer = "container:HelloCEF.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "EB9CF171FEA961C4D5DD7BB5"
+               BuildableName = "HelloCEFUITests.xctest"
+               BlueprintName = "HelloCEFUITests"
+               ReferencedContainer = "container:HelloCEF.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -46,14 +60,27 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6ED85C9F76AF13BEA6D3CB40"
-            BuildableName = "HelloCEF.app"
-            BlueprintName = "HelloCEF"
+            BlueprintIdentifier = "EB9CF171FEA961C4D5DD7BB5"
+            BuildableName = "HelloCEFUITests.xctest"
+            BlueprintName = "HelloCEFUITests"
             ReferencedContainer = "container:HelloCEF.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "EB9CF171FEA961C4D5DD7BB5"
+               BuildableName = "HelloCEFUITests.xctest"
+               BlueprintName = "HelloCEFUITests"
+               ReferencedContainer = "container:HelloCEF.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
