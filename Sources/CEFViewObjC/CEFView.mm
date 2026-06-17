@@ -214,6 +214,28 @@ class _CEFClient : public CefClient,
 - (void)goBack            { if (auto b = [self _browser]) b->GoBack(); }
 - (void)goForward         { if (auto b = [self _browser]) b->GoForward(); }
 
+#pragma mark - DevTools
+
+- (BOOL)isDevToolsOpen {
+  auto b = [self _browser];
+  return b ? b->GetHost()->HasDevTools() : NO;
+}
+
+- (void)setIsDevToolsOpen:(BOOL)open {
+  auto b = [self _browser];
+  if (!b) return;
+  if (open) {
+    // Empty window info → CEF creates a floating native window. Idempotent
+    // when DevTools is already open (just focuses the existing window).
+    CefWindowInfo wi;
+    CefBrowserSettings bs;
+    CefPoint inspect;  // (0,0) — no element pre-selected
+    b->GetHost()->ShowDevTools(wi, nullptr, bs, inspect);
+  } else {
+    b->GetHost()->CloseDevTools();
+  }
+}
+
 #pragma mark - JS eval (DevTools Runtime.evaluate)
 
 - (void)evaluateJavaScript:(NSString*)script

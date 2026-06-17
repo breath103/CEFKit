@@ -84,6 +84,13 @@ NS_SWIFT_NAME(CEFWebView)
                 completion:(void (^_Nullable)(id _Nullable result, NSError* _Nullable error))completion
     NS_SWIFT_NAME(evaluateJavaScript(_:completion:));
 
+#pragma mark - DevTools
+
+/// Open / close Chromium DevTools for this browser.
+/// Setting `YES` while already open is a no-op focus; setting `NO` while
+/// closed is a no-op. DevTools open in a new floating native window.
+@property (nonatomic, assign) BOOL isDevToolsOpen;
+
 @end
 
 NS_ASSUME_NONNULL_END
