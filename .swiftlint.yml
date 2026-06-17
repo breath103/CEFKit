@@ -1,0 +1,42 @@
+included:
+  - Sources
+  - Tests
+  - Examples
+
+excluded:
+  - .build
+  - vendor
+  - artifacts
+  - Sources/CEFViewObjC
+  - Sources/CEFWrapper
+
+disabled_rules:
+  - todo
+  - trailing_comma
+  - opening_brace
+  - identifier_name
+
+line_length:
+  warning: 140
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+
+function_body_length:
+  warning: 80
+  error: 160
+
+type_body_length:
+  warning: 300
+  error: 500
+
+file_length:
+  warning: 600
+  error: 1000
+
+cyclomatic_complexity:
+  warning: 15
+  error: 25
+
+nesting:
+  type_level: 3

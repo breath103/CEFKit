@@ -14,7 +14,9 @@ public struct CEFWebViewRepresentable: NSViewRepresentable {
         self.webView = webView
     }
 
-    public func makeNSView(context: Context) -> CEFWebView { webView }
+    public func makeNSView(context: Context) -> CEFWebView {
+        webView
+    }
 
     public func updateNSView(_ nsView: CEFWebView, context: Context) {}
 }

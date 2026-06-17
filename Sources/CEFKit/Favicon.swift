@@ -1,5 +1,5 @@
-@_exported import CEFViewObjC
 import AppKit
+@_exported import CEFViewObjC
 import Foundation
 import Observation
 
@@ -18,9 +18,9 @@ public final class Favicon {
     @ObservationIgnored private var imageObs: NSKeyValueObservation?
 
     init(_ ref: CEFFaviconRef) {
-        self.url = ref.url
-        self.image = ref.image
-        self.imageObs = ref.observe(\.image, options: [.new]) { [weak self] _, c in
+        url = ref.url
+        image = ref.image
+        imageObs = ref.observe(\.image, options: [.new]) { [weak self] _, c in
             self?.image = c.newValue ?? nil
         }
     }
