@@ -1,0 +1,26 @@
+{
+  "project": "https://github.com/users/breath103/projects/6",
+  "repo": "breath103/CEFKit",
+  "owner": "breath103",
+  "number": 6,
+  "projectId": "PVT_kwHOAB6LgM4Ba5W-",
+  "title": "CEFKit",
+  "statusFieldId": "PVTSSF_lAHOAB6LgM4Ba5W-zhVtqfA",
+  "columns": {
+    "Ready": "79ee2fa8",
+    "In progress": "8b57596d",
+    "In review": "d4796bd0",
+    "Done": "6ec606e0"
+  },
+  "labels": [
+    "bug",
+    "documentation",
+    "duplicate",
+    "enhancement",
+    "good first issue",
+    "help wanted",
+    "invalid",
+    "question",
+    "wontfix"
+  ]
+}

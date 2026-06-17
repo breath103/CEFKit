@@ -34,3 +34,6 @@ Package.resolved
 .vscode/
 *.swp
 *~
+
+# project-task scratch
+.tmp/
