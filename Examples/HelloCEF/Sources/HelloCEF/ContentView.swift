@@ -5,7 +5,7 @@ import SwiftUI
 /// selected one is visible and hit-testable. Tearing down + recreating CEF
 /// views on tab-switch would be expensive and would lose page state.
 struct ContentView: View {
-    @ObservedObject var store: TabStore
+    let store: TabStore
 
     var body: some View {
         NavigationSplitView {
