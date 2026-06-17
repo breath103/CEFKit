@@ -41,16 +41,15 @@ NS_SWIFT_NAME(CEFApplication)
 NS_SWIFT_NAME(CEFNavigationDelegate)
 @protocol CEFNavigationDelegate <NSObject>
 @optional
+// Navigation EVENTS. State mirrors (title / isLoading / canGoBack /
+// canGoForward / URL) are KVO-observable on CEFView directly — observe
+// those rather than listening here.
 - (void)webView:(CEFView*)webView didStartProvisionalNavigation:(nullable NSURL*)url
     NS_SWIFT_NAME(webView(_:didStartProvisionalNavigationTo:));
 - (void)webView:(CEFView*)webView didFinishNavigationTo:(nullable NSURL*)url statusCode:(int)code
     NS_SWIFT_NAME(webView(_:didFinishNavigationTo:statusCode:));
 - (void)webView:(CEFView*)webView didFailNavigationWithError:(NSError*)error
     NS_SWIFT_NAME(webView(_:didFailNavigationWith:));
-- (void)webView:(CEFView*)webView didChangeTitle:(nullable NSString*)title
-    NS_SWIFT_NAME(webView(_:didChangeTitle:));
-- (void)webView:(CEFView*)webView didChangeLoadingState:(BOOL)isLoading
-    NS_SWIFT_NAME(webView(_:didChangeLoadingState:));
 @end
 
 NS_SWIFT_NAME(CEFWebView)

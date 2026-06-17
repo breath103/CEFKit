@@ -54,8 +54,9 @@
 - [x] `CEFConfiguration` Swift convenience init
 - [x] Swift demo `demo_main.swift` consumes ONLY the Swift API — verified live, page loaded, window title swapped via delegate, 5 helpers + 2 renderers spawned
 - [x] `CEFWebViewRepresentable` for SwiftUI — basic NSViewRepresentable wrapping externally-owned CEFWebView; HelloCEF example rewritten as SwiftUI tabbed shell (Phase 7e)
+- [x] Reactive bindings via KVO bridge — `CEFWebViewObservable` (`webView.observable.title|url|isLoading|canGoBack|canGoForward`); HelloCEF adds address bar + back/forward buttons bound to it (Phase 7f). Deployment target bumped to macOS 14 for `@Observable` macro.
 - [ ] External message pump (CefDoMessageLoopWork) for SwiftUI App lifecycle — deferred (current example still uses imperative `CEFApplication.run` + `NSHostingView`, not `@main App`)
-- [ ] Reactive bindings (title / URL / isLoading) from CEFWebView → SwiftUI — deferred
+- [ ] User-supplied navigation interception (decidePolicyFor URL) — deferred
 
 ### Known dev-only friction
 First launch of every freshly-linked binary prompts "Demo wants to use Chromium Safe Storage in your keychain" — clicking **Always Allow** persists for that binary hash. Recompile = new hash = new prompt. Bypassing via `--use-mock-keychain` programmatically is possible but messy (must inject before CefMainArgs is constructed); not worth the complexity for now per user direction.
