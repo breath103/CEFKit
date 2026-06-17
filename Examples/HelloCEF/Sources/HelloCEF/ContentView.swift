@@ -1,9 +1,9 @@
 import CEFKit
 import SwiftUI
 
-/// Every tab's CEFWebViewRepresentable stays mounted in the ZStack; only the
-/// selected one is visible and hit-testable. Tearing down + recreating CEF
-/// views on tab-switch would be expensive and would lose page state.
+/// Every awake tab's CEFWebViewRepresentable stays mounted in the ZStack;
+/// only the selected one is visible and hit-testable. Hibernated tabs are
+/// absent from the ZStack (no CEFView to mount) and auto-wake when selected.
 struct ContentView: View {
     @Bindable var store: TabStore
 
@@ -24,12 +24,14 @@ struct ContentView: View {
             .frame(minWidth: 220)
         } detail: {
             VStack(spacing: 0) {
-                AddressBar(tab: store.tabs.first { $0.id == store.selectedID })
+                AddressBar(tab: store.selectedTab)
                 ZStack {
                     ForEach(store.tabs) { tab in
-                        CEFWebViewRepresentable(tab.webView)
-                            .opacity(tab.id == store.selectedID ? 1 : 0)
-                            .allowsHitTesting(tab.id == store.selectedID)
+                        if let webView = tab.webView {
+                            CEFWebViewRepresentable(webView)
+                                .opacity(tab.id == store.selectedID ? 1 : 0)
+                                .allowsHitTesting(tab.id == store.selectedID)
+                        }
                     }
                 }
             }

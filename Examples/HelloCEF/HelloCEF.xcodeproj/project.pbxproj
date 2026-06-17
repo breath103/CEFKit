@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0B7358D957FE2297C021B670 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFAC388BE53B851FD295901 /* AppDelegate.swift */; };
+		28AFC53EAA45C9F40F436102 /* HibernateTabUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BE59EC215D79528EB2C4BF /* HibernateTabUITests.swift */; };
 		2F1A3066E37B8E8E6A7C2A73 /* TabRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC7C6966EE82C0EA29D3642 /* TabRow.swift */; };
 		32AC7EB384F122023D6D7459 /* AddressBarUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12BC67A955873A4B42B546B /* AddressBarUITests.swift */; };
 		46CE3685B4EE99ABB5FCB1DC /* CEFKit in Frameworks */ = {isa = PBXBuildFile; productRef = CF71C10404166E067FC7258D /* CEFKit */; };
@@ -44,6 +45,7 @@
 		0AC7C6966EE82C0EA29D3642 /* TabRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRow.swift; sourceTree = "<group>"; };
 		0FC71016043F0306B4057B7F /* FaviconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconView.swift; sourceTree = "<group>"; };
 		33CD1372AD3D8BFE86D8C704 /* CEF */ = {isa = PBXFileReference; lastKnownFileType = folder; name = CEF; path = ../..; sourceTree = SOURCE_ROOT; };
+		34BE59EC215D79528EB2C4BF /* HibernateTabUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HibernateTabUITests.swift; sourceTree = "<group>"; };
 		3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloCEF.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DFAC388BE53B851FD295901 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6EDA69142391BB2B32811D17 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				B12BC67A955873A4B42B546B /* AddressBarUITests.swift */,
+				34BE59EC215D79528EB2C4BF /* HibernateTabUITests.swift */,
 			);
 			path = HelloCEFUITests;
 			sourceTree = "<group>";
@@ -302,6 +305,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32AC7EB384F122023D6D7459 /* AddressBarUITests.swift in Sources */,
+				28AFC53EAA45C9F40F436102 /* HibernateTabUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
