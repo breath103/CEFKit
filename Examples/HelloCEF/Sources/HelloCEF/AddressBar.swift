@@ -32,10 +32,9 @@ struct AddressBar: View {
         .overlay(Divider(), alignment: .bottom)
     }
 
-    /// ZStack with both states always mounted: TextField needs to be in the
-    /// hierarchy when fieldFocused flips to true, otherwise @FocusState has
-    /// nothing to focus. We toggle opacity / hit-testing to swap which is
-    /// visible and interactive.
+    /// TextField stays mounted so `@FocusState` has something to land on
+    /// when the bar gets clicked; opacity + hit-testing swap which view is
+    /// visible.
     private var centerArea: some View {
         ZStack {
             TextField("Search or enter URL", text: $editText)
@@ -76,8 +75,6 @@ struct AddressBar: View {
         let withScheme = trimmed.contains("://") ? trimmed : "https://\(trimmed)"
         guard let url = URL(string: withScheme) else { return }
         if tab.isHibernated {
-            // Wake with the target URL directly so the new CEFWebView starts
-            // loading where the user is going, not the stale snapshot.
             tab.wake(loading: url)
         } else {
             tab.webView?.load(url)

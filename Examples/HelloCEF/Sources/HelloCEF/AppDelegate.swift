@@ -7,10 +7,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
 
     func makeMenu() {
-        // Minimal application menu — without this Cmd+Q is dead.
-        // CEFApplication's NSApplication subclass overrides `terminate:`
-        // to call CefQuitMessageLoop(), so the standard Quit item unwinds
-        // CEF cleanly.
+        // CEFApplication overrides `terminate:` to call CefQuitMessageLoop,
+        // so the standard Quit item is enough to unwind CEF cleanly.
         let appName = ProcessInfo.processInfo.processName
         let mainMenu = NSMenu()
         let appItem = NSMenuItem()

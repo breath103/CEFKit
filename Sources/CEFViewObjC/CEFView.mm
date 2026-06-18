@@ -11,7 +11,7 @@
 // the class so synthesized setters fire KVO automatically. Public callers
 // still see them as readonly via the header.
 @interface CEFFaviconRef ()
-@property (nonatomic, strong, nullable) NSImage* image;  // KVO via synthesized setter
+@property (nonatomic, strong, nullable) NSImage* image;
 @end
 @implementation CEFFaviconRef
 - (instancetype)initWithURL:(NSURL*)url {
@@ -125,15 +125,10 @@ class _CEFClient : public CefClient,
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
 
-  // cmd+click / middle-click / link with modifier doesn't go through
-  // OnBeforePopup — CEF treats it as a "different-disposition navigation
-  // from this tab" and routes it here. Default returns false → CEF
-  // navigates the current tab (wrong). We intercept the TAB dispositions
-  // ourselves, ask the delegate for a new tab, load the URL there, and
-  // return true to cancel the current-tab navigation.
-  //
-  // Note: this path does NOT preserve window.opener — that's expected.
-  // Real browsers default cmd+click to noopener.
+  // cmd+click and middle-click skip OnBeforePopup and arrive here as
+  // tab-disposition navigations. The opener relationship is NOT preserved
+  // on this path (matches real-browser noopener-by-default for modifier
+  // clicks).
   bool OnOpenURLFromTab(CefRefPtr<CefBrowser> /*browser*/,
                         CefRefPtr<CefFrame> /*frame*/,
                         const CefString& target_url,
@@ -146,10 +141,8 @@ class _CEFClient : public CefClient,
     NSURL* url = nsurlFromCefString(target_url);
     BOOL gesture = user_gesture ? YES : NO;
 
-    // dispatch_async even though we're already on the main thread:
-    // returning true cancels the source navigation, but we want the new
-    // tab + load to land AFTER this callback unwinds so CEF's internal
-    // state for the cancelled navigation has finished settling.
+    // Defer the tab spawn so CEF finishes settling the cancelled navigation
+    // before SwiftUI mutates the tab list.
     dispatch_async(dispatch_get_main_queue(), ^{
       CEFView* shell = [opener_view _requestNewTabFor:url
                                           disposition:dispo
@@ -191,13 +184,9 @@ class _CEFClient : public CefClient,
                                     userGesture:user_gesture ? YES : NO];
     if (!shell) return false;
 
-    // Hand CEF our shell's NSView as the host + the shell's own _CEFClient.
-    // Chromium creates the popup browser inside this view and fires
-    // OnAfterCreated on the shell's client. Opener relationship is preserved
-    // because we are returning `false` (allow).
-    //
-    // The shell is constructed with NSZeroRect; the 800×600 placeholder is
-    // replaced by SwiftUI's resize once the shell mounts into the ZStack.
+    // Returning false (allow) is what keeps window.opener wired up — CEF
+    // creates the popup inside `shell` and fires OnAfterCreated on its
+    // client. Size is a placeholder; SwiftUI resizes on mount.
     windowInfo.SetAsChild((__bridge void*)shell, CefRect(0, 0, 800, 600));
     client = [shell _internalCefClient];
     return false;
@@ -318,12 +307,11 @@ class _CEFClient : public CefClient,
 }
 
 + (CEFView*)popupView {
-  // Shell view: the _CEFClient is created up front (so OnBeforePopup can
-  // hand it back to CEF), but no CefBrowser is created here — CEF will
-  // call OnAfterCreated on this client when the popup browser materializes.
+  // _CEFClient is built up front so OnBeforePopup can hand it back to CEF;
+  // the browser arrives later via OnAfterCreated.
   CEFView* v = [[CEFView alloc] initWithFrame:NSZeroRect URL:nil];
   v->_client = new _CEFClient(v);
-  v->_browserCreated = YES;  // suppress viewDidMoveToWindow's create path
+  v->_browserCreated = YES;
   return v;
 }
 
