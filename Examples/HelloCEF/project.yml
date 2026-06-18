@@ -91,6 +91,9 @@ targets:
     platform: macOS
     sources:
       - path: Tests/HelloCEFUITests
+        excludes: ["fixtures/**"]
+      - path: Tests/HelloCEFUITests/fixtures
+        buildPhase: resources
     dependencies:
       - target: HelloCEF
     settings:
