@@ -1,9 +1,3 @@
-// A tab normally owns its CEFWebView for its whole lifetime so switching
-// tabs is a visibility toggle. Hibernation breaks that on purpose: webView
-// is released (CEF browser dies), a snapshot of last-known state is kept
-// so the sidebar row still has something to render, and wake() builds a
-// fresh CEFWebView pointed at the snapshotted URL.
-
 import AppKit
 import CEFKit
 import Foundation
@@ -14,8 +8,6 @@ final class BrowserTab: Identifiable {
     let id = UUID()
     private(set) var webView: CEFWebView?
 
-    /// Forwarded to every CEFWebView this tab owns — set once by TabStore,
-    /// re-applied on wake() to whatever fresh webView gets allocated.
     @ObservationIgnored weak var navigationDelegate: CEFNavigationDelegate? {
         didSet { webView?.navigationDelegate = navigationDelegate }
     }
@@ -33,9 +25,8 @@ final class BrowserTab: Identifiable {
         webView = CEFWebView(frame: .zero, url: url)
     }
 
-    /// Adopt an externally-created webView (e.g. a popup shell whose browser
-    /// CEF will fill in via OnAfterCreated). `targetURL` is the URL the popup
-    /// is going to navigate to and is used as the snapshot for chrome.
+    /// Adopts a CEFWebView whose CefBrowser will arrive via OnAfterCreated
+    /// (e.g. the shell view handed back from OnBeforePopup).
     init(adopting view: CEFWebView, targetURL: URL) {
         snapshotURL = targetURL
         webView = view
@@ -46,8 +37,6 @@ final class BrowserTab: Identifiable {
         snapshotTitle = webView.observable.title
         if let liveURL = webView.observable.url { snapshotURL = liveURL }
         snapshotFaviconImage = webView.observable.favicon?.image
-        // Releasing the only strong reference triggers CEFWebView.deinit,
-        // which closes the CEF browser and reclaims its renderer process.
         self.webView = nil
     }
 
@@ -58,9 +47,6 @@ final class BrowserTab: Identifiable {
         view.navigationDelegate = navigationDelegate
         webView = view
     }
-
-    // Single source for "what to show in chrome" — collapses the live ↔ snapshot
-    // dispatch so views don't each re-implement it.
 
     var displayTitle: String {
         let title = webView?.observable.title ?? snapshotTitle

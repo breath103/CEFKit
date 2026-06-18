@@ -1,9 +1,6 @@
 import CEFKit
 import SwiftUI
 
-/// Every awake tab's CEFWebViewRepresentable stays mounted in the ZStack;
-/// only the selected one is visible and hit-testable. Hibernated tabs are
-/// absent from the ZStack (no CEFView to mount) and auto-wake when selected.
 struct ContentView: View {
     @Bindable var store: TabStore
 

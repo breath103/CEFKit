@@ -1,8 +1,5 @@
 import SwiftUI
 
-/// Row in the sidebar list. Reads from `tab.display*` which already collapse
-/// live `webView.observable.*` and the hibernation snapshot. Hibernated rows
-/// dim themselves and sprout a `moon.zzz` badge.
 struct TabRow: View {
     let tab: BrowserTab
 
