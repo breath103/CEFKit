@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		058D222BFCF6F0B15010CDF9 /* TargetBlankUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31669CD764E183A8473FF6C2 /* TargetBlankUITests.swift */; };
 		0B7358D957FE2297C021B670 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFAC388BE53B851FD295901 /* AppDelegate.swift */; };
 		28AFC53EAA45C9F40F436102 /* HibernateTabUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BE59EC215D79528EB2C4BF /* HibernateTabUITests.swift */; };
+		2971931141F8A10BF71A6ABB /* target-blank.html in Resources */ = {isa = PBXBuildFile; fileRef = 3CF6E94BD18E181B8011C8A0 /* target-blank.html */; };
 		2F1A3066E37B8E8E6A7C2A73 /* TabRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC7C6966EE82C0EA29D3642 /* TabRow.swift */; };
 		32AC7EB384F122023D6D7459 /* AddressBarUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12BC67A955873A4B42B546B /* AddressBarUITests.swift */; };
 		46CE3685B4EE99ABB5FCB1DC /* CEFKit in Frameworks */ = {isa = PBXBuildFile; productRef = CF71C10404166E067FC7258D /* CEFKit */; };
@@ -44,9 +46,11 @@
 		06E738C740E5D9AEFE0275B7 /* TabStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabStore.swift; sourceTree = "<group>"; };
 		0AC7C6966EE82C0EA29D3642 /* TabRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRow.swift; sourceTree = "<group>"; };
 		0FC71016043F0306B4057B7F /* FaviconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconView.swift; sourceTree = "<group>"; };
+		31669CD764E183A8473FF6C2 /* TargetBlankUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetBlankUITests.swift; sourceTree = "<group>"; };
 		33CD1372AD3D8BFE86D8C704 /* CEF */ = {isa = PBXFileReference; lastKnownFileType = folder; name = CEF; path = ../..; sourceTree = SOURCE_ROOT; };
 		34BE59EC215D79528EB2C4BF /* HibernateTabUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HibernateTabUITests.swift; sourceTree = "<group>"; };
 		3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloCEF.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CF6E94BD18E181B8011C8A0 /* target-blank.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "target-blank.html"; sourceTree = "<group>"; };
 		4DFAC388BE53B851FD295901 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6EDA69142391BB2B32811D17 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		7BB4DC6907C495D692A8C44E /* BrowserTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTab.swift; sourceTree = "<group>"; };
@@ -77,6 +81,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		17519D47CBC73AC516A5C946 /* fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				3CF6E94BD18E181B8011C8A0 /* target-blank.html */,
+			);
+			path = fixtures;
+			sourceTree = "<group>";
+		};
 		33648EB395CCDA912E2B2066 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -109,6 +121,8 @@
 			children = (
 				B12BC67A955873A4B42B546B /* AddressBarUITests.swift */,
 				34BE59EC215D79528EB2C4BF /* HibernateTabUITests.swift */,
+				31669CD764E183A8473FF6C2 /* TargetBlankUITests.swift */,
+				17519D47CBC73AC516A5C946 /* fixtures */,
 			);
 			path = HelloCEFUITests;
 			sourceTree = "<group>";
@@ -202,6 +216,7 @@
 			buildConfigurationList = BF4B701779C3F509130DEB4C /* Build configuration list for PBXNativeTarget "HelloCEFUITests" */;
 			buildPhases = (
 				ACE3D03CEF6855745B04CAB3 /* Sources */,
+				B831FA825913A21B2D593042 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -263,6 +278,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		B831FA825913A21B2D593042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2971931141F8A10BF71A6ABB /* target-blank.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXShellScriptBuildPhase section */
 		CD6DC8C8C80EDAA403779939 /* [CEFKit] Embed framework + helpers */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -306,6 +332,7 @@
 			files = (
 				32AC7EB384F122023D6D7459 /* AddressBarUITests.swift in Sources */,
 				28AFC53EAA45C9F40F436102 /* HibernateTabUITests.swift in Sources */,
+				058D222BFCF6F0B15010CDF9 /* TargetBlankUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

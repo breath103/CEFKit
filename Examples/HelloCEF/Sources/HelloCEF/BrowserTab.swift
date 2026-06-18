@@ -14,6 +14,12 @@ final class BrowserTab: Identifiable {
     let id = UUID()
     private(set) var webView: CEFWebView?
 
+    /// Forwarded to every CEFWebView this tab owns — set once by TabStore,
+    /// re-applied on wake() to whatever fresh webView gets allocated.
+    @ObservationIgnored weak var navigationDelegate: CEFNavigationDelegate? {
+        didSet { webView?.navigationDelegate = navigationDelegate }
+    }
+
     private var snapshotURL: URL
     private var snapshotTitle: String?
     private var snapshotFaviconImage: NSImage?
@@ -25,6 +31,14 @@ final class BrowserTab: Identifiable {
     init(url: URL) {
         snapshotURL = url
         webView = CEFWebView(frame: .zero, url: url)
+    }
+
+    /// Adopt an externally-created webView (e.g. a popup shell whose browser
+    /// CEF will fill in via OnAfterCreated). `targetURL` is the URL the popup
+    /// is going to navigate to and is used as the snapshot for chrome.
+    init(adopting view: CEFWebView, targetURL: URL) {
+        snapshotURL = targetURL
+        webView = view
     }
 
     func hibernate() {
@@ -40,7 +54,9 @@ final class BrowserTab: Identifiable {
     func wake(loading url: URL? = nil) {
         guard webView == nil else { return }
         if let url { snapshotURL = url }
-        webView = CEFWebView(frame: .zero, url: snapshotURL)
+        let view = CEFWebView(frame: .zero, url: snapshotURL)
+        view.navigationDelegate = navigationDelegate
+        webView = view
     }
 
     // Single source for "what to show in chrome" — collapses the live ↔ snapshot

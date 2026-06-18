@@ -4,6 +4,7 @@
 #include "include/cef_client.h"
 #include "include/cef_devtools_message_observer.h"
 #include "include/cef_parser.h"
+#include "include/cef_request_handler.h"
 #include "include/wrapper/cef_helpers.h"
 
 // Redeclare the public-readonly state-mirror properties as readwrite inside
@@ -28,6 +29,10 @@
 
 - (void)_onLoadStartURL:(nullable NSURL*)url;
 - (void)_onLoadEndURL:(nullable NSURL*)url statusCode:(int)code;
+- (CefClient*)_internalCefClient;
+- (nullable CEFView*)_requestNewTabFor:(nullable NSURL*)url
+                            disposition:(CEFTabDisposition)disposition
+                            userGesture:(BOOL)userGesture;
 - (void)_onLoadErrorURL:(nullable NSURL*)url
                   error:(NSError*)error;
 - (void)_onDevToolsResult:(int)messageId
@@ -36,6 +41,30 @@
 @end
 
 namespace {
+
+// CEF → our coarse two-case enum. Returns false for dispositions the host
+// doesn't route through the delegate (popups with feature strings, save-as,
+// etc.), letting CEF apply its default behavior.
+bool cefToTabDisposition(CefLifeSpanHandler::WindowOpenDisposition cef,
+                         CEFTabDisposition* out) {
+  switch (cef) {
+    case CEF_WOD_NEW_FOREGROUND_TAB:
+    case CEF_WOD_NEW_WINDOW:
+      *out = CEFTabDispositionNewForegroundTab;
+      return true;
+    case CEF_WOD_NEW_BACKGROUND_TAB:
+      *out = CEFTabDispositionNewBackgroundTab;
+      return true;
+    default:
+      return false;
+  }
+}
+
+NSURL* nsurlFromCefString(const CefString& s) {
+  if (s.empty()) return nil;
+  return [NSURL URLWithString:
+      [NSString stringWithUTF8String:s.ToString().c_str()]];
+}
 
 class _CEFClient;
 
@@ -86,13 +115,49 @@ class _CEFDevToolsObserver : public CefDevToolsMessageObserver {
 class _CEFClient : public CefClient,
                    public CefLifeSpanHandler,
                    public CefLoadHandler,
-                   public CefDisplayHandler {
+                   public CefDisplayHandler,
+                   public CefRequestHandler {
  public:
   _CEFClient() = default;
   explicit _CEFClient(CEFView* owner) : owner_(owner) {}
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
+  CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
+
+  // cmd+click / middle-click / link with modifier doesn't go through
+  // OnBeforePopup — CEF treats it as a "different-disposition navigation
+  // from this tab" and routes it here. Default returns false → CEF
+  // navigates the current tab (wrong). We intercept the TAB dispositions
+  // ourselves, ask the delegate for a new tab, load the URL there, and
+  // return true to cancel the current-tab navigation.
+  //
+  // Note: this path does NOT preserve window.opener — that's expected.
+  // Real browsers default cmd+click to noopener.
+  bool OnOpenURLFromTab(CefRefPtr<CefBrowser> /*browser*/,
+                        CefRefPtr<CefFrame> /*frame*/,
+                        const CefString& target_url,
+                        WindowOpenDisposition target_disposition,
+                        bool user_gesture) override {
+    CEFTabDisposition dispo;
+    if (!cefToTabDisposition(target_disposition, &dispo)) return false;
+
+    CEFView* opener_view = owner_;
+    NSURL* url = nsurlFromCefString(target_url);
+    BOOL gesture = user_gesture ? YES : NO;
+
+    // dispatch_async even though we're already on the main thread:
+    // returning true cancels the source navigation, but we want the new
+    // tab + load to land AFTER this callback unwinds so CEF's internal
+    // state for the cancelled navigation has finished settling.
+    dispatch_async(dispatch_get_main_queue(), ^{
+      CEFView* shell = [opener_view _requestNewTabFor:url
+                                          disposition:dispo
+                                          userGesture:gesture];
+      if (shell && url) { [shell load:url]; }
+    });
+    return true;
+  }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> b) override {
     CEF_REQUIRE_UI_THREAD();
@@ -100,6 +165,42 @@ class _CEFClient : public CefClient,
     devtools_ = new _CEFDevToolsObserver();
     devtools_->SetOwner(owner_);
     devtools_registration_ = b->GetHost()->AddDevToolsMessageObserver(devtools_.get());
+  }
+
+  bool OnBeforePopup(
+      CefRefPtr<CefBrowser> /*opener*/,
+      CefRefPtr<CefFrame> /*frame*/,
+      int /*popup_id*/,
+      const CefString& target_url,
+      const CefString& /*target_frame_name*/,
+      WindowOpenDisposition target_disposition,
+      bool user_gesture,
+      const CefPopupFeatures& /*popupFeatures*/,
+      CefWindowInfo& windowInfo,
+      CefRefPtr<CefClient>& client,
+      CefBrowserSettings& /*settings*/,
+      CefRefPtr<CefDictionaryValue>& /*extra_info*/,
+      bool* /*no_javascript_access*/) override {
+    CEF_REQUIRE_UI_THREAD();
+
+    CEFTabDisposition dispo;
+    if (!cefToTabDisposition(target_disposition, &dispo)) return false;
+
+    CEFView* shell = [owner_ _requestNewTabFor:nsurlFromCefString(target_url)
+                                    disposition:dispo
+                                    userGesture:user_gesture ? YES : NO];
+    if (!shell) return false;
+
+    // Hand CEF our shell's NSView as the host + the shell's own _CEFClient.
+    // Chromium creates the popup browser inside this view and fires
+    // OnAfterCreated on the shell's client. Opener relationship is preserved
+    // because we are returning `false` (allow).
+    //
+    // The shell is constructed with NSZeroRect; the 800×600 placeholder is
+    // replaced by SwiftUI's resize once the shell mounts into the ZStack.
+    windowInfo.SetAsChild((__bridge void*)shell, CefRect(0, 0, 800, 600));
+    client = [shell _internalCefClient];
+    return false;
   }
   void OnBeforeClose(CefRefPtr<CefBrowser>) override {
     CEF_REQUIRE_UI_THREAD();
@@ -214,6 +315,34 @@ class _CEFClient : public CefClient,
     self.wantsLayer = YES;
   }
   return self;
+}
+
++ (CEFView*)popupView {
+  // Shell view: the _CEFClient is created up front (so OnBeforePopup can
+  // hand it back to CEF), but no CefBrowser is created here — CEF will
+  // call OnAfterCreated on this client when the popup browser materializes.
+  CEFView* v = [[CEFView alloc] initWithFrame:NSZeroRect URL:nil];
+  v->_client = new _CEFClient(v);
+  v->_browserCreated = YES;  // suppress viewDidMoveToWindow's create path
+  return v;
+}
+
+- (CefClient*)_internalCefClient {
+  return _client.get();
+}
+
+- (CEFView*)_requestNewTabFor:(NSURL*)url
+                  disposition:(CEFTabDisposition)disposition
+                  userGesture:(BOOL)userGesture {
+  id<CEFNavigationDelegate> d = self.navigationDelegate;
+  if (![d respondsToSelector:
+      @selector(webView:requestsNewTabForURL:userGesture:disposition:)]) {
+    return nil;
+  }
+  return [d webView:self
+       requestsNewTabForURL:url
+                userGesture:userGesture
+                disposition:disposition];
 }
 
 - (void)viewDidMoveToWindow {

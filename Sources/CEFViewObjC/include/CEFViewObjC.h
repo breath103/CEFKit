@@ -51,6 +51,17 @@ NS_SWIFT_NAME(CEFApplication)
     NS_SWIFT_UNAVAILABLE("use runHelper()");
 @end
 
+/// Where a popup wants to land. Mirrors a subset of CEF's
+/// `WindowOpenDisposition`. Only the TAB cases get routed through the
+/// `requestsNewTab` delegate; everything else falls through to CEF's
+/// default popup behavior.
+typedef NS_ENUM(NSInteger, CEFTabDisposition) {
+    /// `target="_blank"` click; `cmd+shift+click`.
+    CEFTabDispositionNewForegroundTab = 0,
+    /// `cmd+click`.
+    CEFTabDispositionNewBackgroundTab = 1,
+} NS_SWIFT_NAME(CEFTabDisposition);
+
 NS_SWIFT_NAME(CEFNavigationDelegate)
 @protocol CEFNavigationDelegate <NSObject>
 @optional
@@ -63,6 +74,23 @@ NS_SWIFT_NAME(CEFNavigationDelegate)
     NS_SWIFT_NAME(webView(_:didFinishNavigationTo:statusCode:));
 - (void)webView:(CEFView*)webView didFailNavigationWithError:(NSError*)error
     NS_SWIFT_NAME(webView(_:didFailNavigationWith:));
+
+/// A page in `webView` (the opener) asked to open `url` in a new tab —
+/// either via `target="_blank"` or `window.open(url, "_blank")`. The
+/// delegate should:
+///   • create a popup CEFView via `+[CEFView popupView]`
+///   • append it to its tab model (so it stays alive + gets mounted in a window)
+///   • select it if the disposition is foreground
+///   • return that view
+///
+/// CEF will then create the popup browser INSIDE the returned view, with
+/// `window.opener` wired up to the source page. Returning nil falls back
+/// to CEF's default behavior (a detached browser window).
+- (nullable CEFView*)webView:(CEFView*)webView
+        requestsNewTabForURL:(nullable NSURL*)url
+                 userGesture:(BOOL)userGesture
+                 disposition:(CEFTabDisposition)disposition
+    NS_SWIFT_NAME(webView(_:requestsNewTabFor:userGesture:disposition:));
 @end
 
 NS_SWIFT_NAME(CEFWebView)
@@ -84,6 +112,12 @@ NS_SWIFT_NAME(CEFWebView)
 - (instancetype)initWithFrame:(NSRect)frame URL:(nullable NSURL*)url NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithFrame:(NSRect)frame NS_UNAVAILABLE;
 - (instancetype)initWithCoder:(NSCoder*)c NS_UNAVAILABLE;
+
+/// Allocates a "shell" CEFView that does NOT create its own CefBrowser —
+/// returned from the `requestsNewTab` delegate so CEF can attach a popup
+/// browser into it. Calling load:/goBack:/etc. is a no-op until CEF's
+/// `OnAfterCreated` arrives with the popup browser.
++ (CEFView*)popupView NS_SWIFT_NAME(popupView());
 
 - (void)load:(NSURL*)url NS_SWIFT_NAME(load(_:));
 - (void)loadHTMLString:(NSString*)html baseURL:(nullable NSURL*)baseURL
