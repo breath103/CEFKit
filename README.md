@@ -65,22 +65,6 @@ For a working reference: [`Examples/HelloCEF`](Examples/HelloCEF/HelloCEF.xcodep
 
 ---
 
-## Status
-
-| Phase | What | Status |
-|---|---|---|
-| 0 | hand-built CEF spike (cefsimple) | ✅ |
-| 1 | wrap framework as XCFramework | ✅ |
-| 2 | SwiftPM package skeleton | ✅ |
-| 3 | WKWebView-shaped public API (Swift + ObjC) | ✅ |
-| 4 | reusable Xcode embed script | ✅ |
-| 5 | entitlements templates + hardened-runtime docs | ✅ |
-| 6 | GitHub Release distribution of CEF.xcframework | ✅ v0.1.1 |
-| 7a | DevTools open/close (`CEFWebView.isDevToolsOpen`) | ✅ |
-| 7b | Cookies, custom scheme handlers, off-screen rendering | pending |
-
----
-
 ## Layout
 
 ```
