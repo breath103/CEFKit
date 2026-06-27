@@ -3,6 +3,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_devtools_message_observer.h"
+#include "include/cef_jsdialog_handler.h"
 #include "include/cef_parser.h"
 #include "include/cef_request_handler.h"
 #include "include/wrapper/cef_helpers.h"
@@ -66,6 +67,10 @@ NSURL* nsurlFromCefString(const CefString& s) {
       [NSString stringWithUTF8String:s.ToString().c_str()]];
 }
 
+NSString* nsstringFromCefString(const CefString& s) {
+  return [NSString stringWithUTF8String:s.ToString().c_str()];
+}
+
 class _ChromiumClient;
 
 class _CEFFaviconCallback : public CefDownloadImageCallback {
@@ -116,7 +121,8 @@ class _ChromiumClient : public CefClient,
                    public CefLifeSpanHandler,
                    public CefLoadHandler,
                    public CefDisplayHandler,
-                   public CefRequestHandler {
+                   public CefRequestHandler,
+                   public CefJSDialogHandler {
  public:
   _ChromiumClient() = default;
   explicit _ChromiumClient(ChromiumView* owner) : owner_(owner) {}
@@ -124,6 +130,7 @@ class _ChromiumClient : public CefClient,
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
+  CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() override { return this; }
 
   // cmd+click and middle-click skip OnBeforePopup and arrive here as
   // tab-disposition navigations. The opener relationship is NOT preserved
@@ -270,6 +277,101 @@ class _ChromiumClient : public CefClient,
     NSString* t = [NSString stringWithUTF8String:title.ToString().c_str()];
     __weak ChromiumView* o = owner_;
     dispatch_async(dispatch_get_main_queue(), ^{ o.title = t; });
+  }
+
+  // CefJSDialogHandler. Return false to fall through to CEF's native dialog;
+  // return true after either (a) invoking the callback synchronously or
+  // (b) handing it to the consumer who must invoke it later.
+  bool OnJSDialog(CefRefPtr<CefBrowser> /*browser*/,
+                  const CefString& origin_url,
+                  JSDialogType dialog_type,
+                  const CefString& message_text,
+                  const CefString& default_prompt_text,
+                  CefRefPtr<CefJSDialogCallback> callback,
+                  bool& /*suppress_message*/) override {
+    __strong id<ChromiumUIDelegate> delegate = owner_.uiDelegate;
+    if (!delegate) return false;
+
+    NSString* msg = nsstringFromCefString(message_text);
+    NSURL* origin = nsurlFromCefString(origin_url);
+    __weak ChromiumView* owner = owner_;
+
+    switch (dialog_type) {
+      case JSDIALOGTYPE_ALERT: {
+        if (![delegate respondsToSelector:@selector(webView:runJavaScriptAlertPanelWithMessage:originURL:completionHandler:)]) {
+          return false;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+          ChromiumView* o = owner; if (!o) { callback->Continue(false, CefString()); return; }
+          [o.uiDelegate webView:o
+              runJavaScriptAlertPanelWithMessage:msg
+                                       originURL:origin
+                               completionHandler:^{ callback->Continue(true, CefString()); }];
+        });
+        return true;
+      }
+      case JSDIALOGTYPE_CONFIRM: {
+        if (![delegate respondsToSelector:@selector(webView:runJavaScriptConfirmPanelWithMessage:originURL:completionHandler:)]) {
+          return false;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+          ChromiumView* o = owner; if (!o) { callback->Continue(false, CefString()); return; }
+          [o.uiDelegate webView:o
+              runJavaScriptConfirmPanelWithMessage:msg
+                                         originURL:origin
+                                 completionHandler:^(BOOL result) {
+                                   callback->Continue(result ? true : false, CefString());
+                                 }];
+        });
+        return true;
+      }
+      case JSDIALOGTYPE_PROMPT: {
+        if (![delegate respondsToSelector:@selector(webView:runJavaScriptTextInputPanelWithPrompt:defaultText:originURL:completionHandler:)]) {
+          return false;
+        }
+        NSString* def = nsstringFromCefString(default_prompt_text);
+        dispatch_async(dispatch_get_main_queue(), ^{
+          ChromiumView* o = owner; if (!o) { callback->Continue(false, CefString()); return; }
+          [o.uiDelegate webView:o
+              runJavaScriptTextInputPanelWithPrompt:msg
+                                        defaultText:def
+                                          originURL:origin
+                                  completionHandler:^(NSString* _Nullable result) {
+                                    if (result == nil) {
+                                      callback->Continue(false, CefString());
+                                    } else {
+                                      callback->Continue(true, CefString(result.UTF8String));
+                                    }
+                                  }];
+        });
+        return true;
+      }
+      default:
+        return false;
+    }
+  }
+
+  bool OnBeforeUnloadDialog(CefRefPtr<CefBrowser> /*browser*/,
+                            const CefString& message_text,
+                            bool is_reload,
+                            CefRefPtr<CefJSDialogCallback> callback) override {
+    __strong id<ChromiumUIDelegate> delegate = owner_.uiDelegate;
+    if (!delegate || ![delegate respondsToSelector:@selector(webView:runBeforeUnloadConfirmPanelWithMessage:isReload:completionHandler:)]) {
+      return false;
+    }
+    NSString* msg = nsstringFromCefString(message_text);
+    BOOL reload = is_reload ? YES : NO;
+    __weak ChromiumView* owner = owner_;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      ChromiumView* o = owner; if (!o) { callback->Continue(true, CefString()); return; }
+      [o.uiDelegate webView:o
+          runBeforeUnloadConfirmPanelWithMessage:msg
+                                        isReload:reload
+                               completionHandler:^(BOOL result) {
+                                 callback->Continue(result ? true : false, CefString());
+                               }];
+    });
+    return true;
   }
 
   CefRefPtr<CefBrowser> browser() const { return browser_; }
