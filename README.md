@@ -76,9 +76,8 @@ For a working reference: [`Examples/HelloCEF`](Examples/HelloCEF/HelloCEF.xcodep
 | 4 | reusable Xcode embed script | ✅ |
 | 5 | entitlements templates + hardened-runtime docs | ✅ |
 | 6 | GitHub Release distribution of CEF.xcframework | ✅ v0.1.1 |
-| 7 | DevTools, cookies, scheme handlers, OSR | pending |
-
-See [`progress.md`](progress.md) for the running checklist.
+| 7a | DevTools open/close (`CEFWebView.isDevToolsOpen`) | ✅ |
+| 7b | Cookies, custom scheme handlers, off-screen rendering | pending |
 
 ---
 
