@@ -5,7 +5,7 @@
 #   1. Verifies the new CEF version exists on cef-builds.spotifycdn.com
 #   2. Updates CEF_VERSION in scripts/fetch-cef.sh
 #   3. Re-fetches the CEF binary distribution into vendor/cef/
-#   4. Re-vendors Sources/CEFWrapper/include/ and libcef_dll/ from the new tarball
+#   4. Re-vendors Sources/ChromiumWrapper/include/ and libcef_dll/ from the new tarball
 #      (this is the part that MUST be in lockstep with the framework binary —
 #       header API changes mean wrapper sources won't compile against an old vendored copy)
 #   5. Rebuilds artifacts/CEF.xcframework.zip
@@ -84,10 +84,10 @@ rm -rf vendor/cef
 
 # 4. Re-vendor wrapper sources + headers. This is the part that's easy to
 #    forget — and silently wrong if you skip it (vtable layouts drift).
-echo "==> re-vendoring Sources/CEFWrapper/{include,libcef_dll}"
-rm -rf Sources/CEFWrapper/include Sources/CEFWrapper/libcef_dll
-cp -R vendor/cef/include    Sources/CEFWrapper/include
-cp -R vendor/cef/libcef_dll Sources/CEFWrapper/libcef_dll
+echo "==> re-vendoring Sources/ChromiumWrapper/{include,libcef_dll}"
+rm -rf Sources/ChromiumWrapper/include Sources/ChromiumWrapper/libcef_dll
+cp -R vendor/cef/include    Sources/ChromiumWrapper/include
+cp -R vendor/cef/libcef_dll Sources/ChromiumWrapper/libcef_dll
 
 # 5. Rebuild the xcframework + zip
 echo "==> rebuilding artifacts/CEF.xcframework"
@@ -126,7 +126,7 @@ cat <<EOF
 
 ==> bump-cef done. To publish, run:
 
-    git add scripts/fetch-cef.sh Sources/CEFWrapper Package.swift
+    git add scripts/fetch-cef.sh Sources/ChromiumWrapper Package.swift
     git commit -m "Bump CEF to $CEF_VERSION ($NEW_TAG)"
     git tag $NEW_TAG
     git push origin main

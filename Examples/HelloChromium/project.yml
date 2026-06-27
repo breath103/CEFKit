@@ -1,0 +1,136 @@
+name: HelloChromium
+options:
+  bundleIdPrefix: org.example
+  deploymentTarget:
+    macOS: "14.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+
+packages:
+  ChromiumKit:
+    path: ../..
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    ARCHS: arm64
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: NO
+
+targets:
+
+  # The host macOS app. Links the full ChromiumKit module (which embeds the
+  # Chromium Embedded Framework). After Xcode builds the .app shell, a Run
+  # Script Build Phase calls embed-chromiumkit.sh — that copies the framework +
+  # assembles the 5 helper .app bundles + signs everything.
+  HelloChromium:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/HelloChromium
+    info:
+      path: HelloChromium/Info.plist
+      properties:
+        CFBundleDisplayName: HelloChromium
+        CFBundleExecutable: $(EXECUTABLE_NAME)
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        CFBundleName: $(PRODUCT_NAME)
+        CFBundlePackageType: APPL
+        CFBundleShortVersionString: "0.1"
+        CFBundleVersion: "1"
+        LSEnvironment:
+          MallocNanoZone: "0"
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHighResolutionCapable: true
+        NSPrincipalClass: NSApplication
+        NSSupportsAutomaticGraphicsSwitching: true
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.example.HelloChromium
+    dependencies:
+      - package: ChromiumKit
+        product: ChromiumKit
+      - target: HelloChromiumHelper
+        # Build ordering only — the embed script picks up the helper from
+        # $BUILT_PRODUCTS_DIR/HelloChromiumHelper and copies it into all 5 helper
+        # .app slots itself.
+        embed: false
+    postBuildScripts:
+      - name: "[ChromiumKit] Embed framework + helpers"
+        runOnlyWhenInstalling: false
+        shell: /bin/bash
+        script: |
+          set -euo pipefail
+          PKG="$SRCROOT/../.."
+          export CHROMIUMKIT_FRAMEWORK_PATH="$PKG/vendor/cef/Release/Chromium Embedded Framework.framework"
+          export CHROMIUMKIT_HELPER_PATH="$BUILT_PRODUCTS_DIR/HelloChromiumHelper"
+          export CHROMIUMKIT_HELPER_PLIST="$PKG/scripts/helper.plist.in"
+          "$PKG/scripts/embed-chromiumkit.sh"
+
+  # The sub-process binary. Same Mach-O is copied into all 5 helper .app
+  # slots. Imports ChromiumKitHelper (NOT ChromiumKit) so SPM does not bake a
+  # @executable_path/../Frameworks/... load command into it — the helper
+  # dlopens the framework at runtime relative to the host bundle.
+  HelloChromiumHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Sources/HelloChromiumHelper
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.example.HelloChromiumHelper
+    dependencies:
+      - package: ChromiumKit
+        product: ChromiumKitHelper
+
+  # XCUITest target — drives the host app over the Accessibility bridge.
+  # Test-running spawns HelloChromium.app and treats it as the system-under-test.
+  HelloChromiumUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: Tests/HelloChromiumUITests
+        excludes: ["fixtures/**"]
+      - path: Tests/HelloChromiumUITests/fixtures
+        buildPhase: resources
+    dependencies:
+      - target: HelloChromium
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.example.HelloChromiumUITests
+      TEST_TARGET_NAME: HelloChromium
+      GENERATE_INFOPLIST_FILE: YES
+
+  # In-process unit tests. Hosted by HelloChromium.app so the CEF framework
+  # loads via the host's @executable_path/../Frameworks layout.
+  HelloChromiumUnitTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/HelloChromiumUnitTests
+    dependencies:
+      - target: HelloChromium
+      - package: ChromiumKit
+        product: ChromiumKit
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.example.HelloChromiumUnitTests
+      TEST_HOST: $(BUILT_PRODUCTS_DIR)/HelloChromium.app/Contents/MacOS/HelloChromium
+      BUNDLE_LOADER: $(TEST_HOST)
+      GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  HelloChromium:
+    build:
+      targets:
+        HelloChromiumHelper: [build]
+        HelloChromium: [build, run]
+        HelloChromiumUITests: [test]
+        HelloChromiumUnitTests: [test]
+    run:
+      config: Debug
+      executable: HelloChromium
+    test:
+      config: Debug
+      targets:
+        - HelloChromiumUITests
+        - HelloChromiumUnitTests

@@ -34,29 +34,29 @@ jobs:
         run: swift build -c release
 
   xcode-build-hellocef:
-    name: xcodebuild (Examples/HelloCEF)
+    name: xcodebuild (Examples/HelloChromium)
     runs-on: macos-15
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
-      # xcodegen regenerates HelloCEF.xcodeproj from project.yml on every PR,
+      # xcodegen regenerates HelloChromium.xcodeproj from project.yml on every PR,
       # catching any drift between the committed .xcodeproj and the spec.
       - name: Install xcodegen
         run: brew install xcodegen
 
-      - name: Regenerate HelloCEF.xcodeproj
-        working-directory: Examples/HelloCEF
+      - name: Regenerate HelloChromium.xcodeproj
+        working-directory: Examples/HelloChromium
         run: xcodegen generate
 
       # Build for arm64 only. macos-15 runners may be x86_64 or arm64 depending
       # on the queue; force arm64 to match the package's published slice.
       - name: xcodebuild
-        working-directory: Examples/HelloCEF
+        working-directory: Examples/HelloChromium
         run: |
           xcodebuild \
-            -project HelloCEF.xcodeproj \
-            -scheme HelloCEF \
+            -project HelloChromium.xcodeproj \
+            -scheme HelloChromium \
             -configuration Debug \
             -destination 'platform=macOS,arch=arm64' \
             ONLY_ACTIVE_ARCH=YES \

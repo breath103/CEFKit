@@ -1,14 +1,14 @@
-// Swift consumer of the CEFKit package. Exercises:
-//   - CEFApplication.run(configuration:setup:) with a CEFConfiguration
-//   - CEFWebView creation + delegate + load/eval
+// Swift consumer of the ChromiumKit package. Exercises:
+//   - ChromiumApplication.run(configuration:setup:) with a ChromiumConfiguration
+//   - ChromiumWebView creation + delegate + load/eval
 //   - async/await JS eval with typed decoding
 
 import AppKit
-import CEFKit
+import ChromiumKit
 
-final class DemoDelegate: NSObject, NSApplicationDelegate, CEFNavigationDelegate {
+final class DemoDelegate: NSObject, NSApplicationDelegate, ChromiumNavigationDelegate {
     var window: NSWindow!
-    var webView: CEFWebView!
+    var webView: ChromiumWebView!
 
     func makeWindow() {
         let rect = NSRect(x: 0, y: 0, width: 1024, height: 768)
@@ -18,23 +18,23 @@ final class DemoDelegate: NSObject, NSApplicationDelegate, CEFNavigationDelegate
             backing: .buffered,
             defer: false
         )
-        window.title = "CEFWebView Demo"
+        window.title = "ChromiumWebView Demo"
         window.center()
 
-        webView = CEFWebView(frame: rect, url: URL(string: "https://example.com")!)
+        webView = ChromiumWebView(frame: rect, url: URL(string: "https://example.com")!)
         webView.navigationDelegate = self
         window.contentView = webView
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    // MARK: CEFNavigationDelegate
+    // MARK: ChromiumNavigationDelegate
 
-    func webView(_ webView: CEFWebView, didStartProvisionalNavigationTo url: URL?) {
+    func webView(_ webView: ChromiumWebView, didStartProvisionalNavigationTo url: URL?) {
         print("→ start:", url?.absoluteString ?? "<nil>")
     }
 
-    func webView(_ webView: CEFWebView, didFinishNavigationTo url: URL?, statusCode code: Int32) {
+    func webView(_ webView: ChromiumWebView, didFinishNavigationTo url: URL?, statusCode code: Int32) {
         print("← finish:", url?.absoluteString ?? "<nil>", "code=\(code)")
         Task { @MainActor in
             do {
@@ -49,16 +49,16 @@ final class DemoDelegate: NSObject, NSApplicationDelegate, CEFNavigationDelegate
         }
     }
 
-    func webView(_ webView: CEFWebView, didFailNavigationWith error: Error) {
+    func webView(_ webView: ChromiumWebView, didFailNavigationWith error: Error) {
         print("✗ fail:", error.localizedDescription)
     }
 
-    func webView(_ webView: CEFWebView, didChangeTitle title: String?) {
+    func webView(_ webView: ChromiumWebView, didChangeTitle title: String?) {
         print("• title:", title ?? "<nil>")
-        window.title = title ?? "CEFWebView Demo"
+        window.title = title ?? "ChromiumWebView Demo"
     }
 
-    func webView(_ webView: CEFWebView, didChangeLoadingState isLoading: Bool) {
+    func webView(_ webView: ChromiumWebView, didChangeLoadingState isLoading: Bool) {
         print("• loading:", isLoading)
     }
 
@@ -68,12 +68,12 @@ final class DemoDelegate: NSObject, NSApplicationDelegate, CEFNavigationDelegate
 }
 
 let delegate = DemoDelegate()
-let config = CEFConfiguration()
+let config = ChromiumConfiguration()
 config.cachePath = FileManager.default
     .urls(for: .cachesDirectory, in: .userDomainMask)[0]
     .appendingPathComponent("work.mirror.cefview.demo")
 
-exit(Int32(CEFApplication.run(configuration: config) {
+exit(Int32(ChromiumApplication.run(configuration: config) {
     NSApp.delegate = delegate
     delegate.makeWindow()
 }))

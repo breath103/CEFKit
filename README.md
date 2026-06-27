@@ -1,24 +1,37 @@
-# CEFKit
+# ChromiumKit
 
-A Swift Package that gives you `CEFWebView` — a Chromium-backed `NSView` you
-drop into a macOS app the way you'd drop in a `WKWebView`. Backed by the
-Chromium Embedded Framework (CEF).
+**A drop-in replacement for `WKWebView` on macOS, backed by Chromium.** Same
+shape as `WKWebView` — `init(frame:url:)`, `load`, `goBack`, `reload`,
+`evaluateJavaScript`, navigation delegate — but with a full Chromium engine
+underneath (DevTools, modern JS, web standards parity).
 
 ```swift
-import AppKit
-import CEFKit
+import SwiftUI
+import ChromiumKit
 
-exit(Int32(CEFApplication.run {
-    let win = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1024, height: 768),
-                       styleMask: [.titled, .closable, .resizable],
-                       backing: .buffered, defer: false)
-    win.contentView = CEFWebView(frame: win.contentView!.bounds,
-                                 url: URL(string: "https://example.com")!)
-    win.makeKeyAndOrderFront(nil)
-}))
+struct ContentView: View {
+    let webView = ChromiumWebView(
+        frame: .zero,
+        url: URL(string: "https://example.com")!
+    )
+
+    var body: some View {
+        ChromiumWebViewRepresentable(webView)
+    }
+}
 ```
 
-That's the whole demo. Real consumer setup is in [`INTEGRATION.md`](INTEGRATION.md).
+That's the whole view. The full SwiftUI example with tabs, address bar, and
+DevTools lives in [`Examples/HelloChromium`](Examples/HelloChromium/HelloChromium.xcodeproj).
+Real consumer setup is in [`INTEGRATION.md`](INTEGRATION.md).
+
+## Why
+
+`WKWebView` ships with macOS, but it's WebKit — locked to the OS release
+cadence, missing DevTools, and lagging on modern web platform features. If
+you're building a browser, an Electron-shaped app, or anything that needs
+parity with desktop Chrome, you reach for Chromium directly. ChromiumKit
+gives you that with a `WKWebView`-shaped API and a single SPM dependency.
 
 ## Install
 
@@ -27,31 +40,31 @@ Three steps, in your Xcode project:
 **1. Add the SPM dependency.** File → Add Package Dependencies → URL:
 
 ```
-https://github.com/breath103/CEFKit.git
+https://github.com/breath103/ChromiumKit.git
 ```
 
 **2. Link two products to two targets.**
 
 | Your target | Add product |
 |---|---|
-| Host app (e.g. `MyApp`) | `CEFKit` |
-| Helper executable (e.g. `MyAppHelper`) — a "Command Line Tool" target you create | `CEFKitHelper` |
+| Host app (e.g. `MyApp`) | `ChromiumKit` |
+| Helper executable (e.g. `MyAppHelper`) — a "Command Line Tool" target you create | `ChromiumKitHelper` |
 
-The host imports `CEFKit`. The helper is one line:
+The host imports `ChromiumKit`. The helper is one line:
 
 ```swift
-import CEFKitHelper
-exit(Int32(CEFApplication.runHelper()))
+import ChromiumKitHelper
+exit(Int32(ChromiumApplication.runHelper()))
 ```
 
 **3. Add a Run Script Build Phase to the host app target.** Build Phases → + → New Run Script Phase. Paste:
 
 ```sh
-PKG="$BUILD_DIR/../../SourcePackages/checkouts/CEFKit"
-export CEFKIT_FRAMEWORK_PATH="$PKG/vendor/cef/Release/Chromium Embedded Framework.framework"
-export CEFKIT_HELPER_PATH="$BUILT_PRODUCTS_DIR/MyAppHelper"
-export CEFKIT_HELPER_PLIST="$PKG/scripts/helper.plist.in"
-"$PKG/scripts/embed-cefkit.sh"
+PKG="$BUILD_DIR/../../SourcePackages/checkouts/ChromiumKit"
+export CHROMIUMKIT_FRAMEWORK_PATH="$PKG/vendor/cef/Release/Chromium Embedded Framework.framework"
+export CHROMIUMKIT_HELPER_PATH="$BUILT_PRODUCTS_DIR/MyAppHelper"
+export CHROMIUMKIT_HELPER_PLIST="$PKG/scripts/helper.plist.in"
+"$PKG/scripts/embed-chromiumkit.sh"
 ```
 
 (Substitute `MyAppHelper` with your helper target's executable name.)
@@ -61,7 +74,7 @@ Run Script assembles the 5 sub-process `.app` bundles CEF needs.
 
 For the long version (why these steps exist, codesigning, entitlements):
 [`INTEGRATION.md`](INTEGRATION.md).
-For a working reference: [`Examples/HelloCEF`](Examples/HelloCEF/HelloCEF.xcodeproj).
+For a working reference: [`Examples/HelloChromium`](Examples/HelloChromium/HelloChromium.xcodeproj).
 
 ---
 
@@ -69,22 +82,22 @@ For a working reference: [`Examples/HelloCEF`](Examples/HelloCEF/HelloCEF.xcodep
 
 ```
 Sources/
-  CEFWrapper/      C++ — libcef_dll wrapper (vendored from CEF, BSD-licensed)
-  CEFViewObjC/     Obj-C++ — handler subclasses, glue, public Obj-C surface
-  CEFKit/          Swift — full host surface (links the framework)
-  CEFKitHelper/    Swift — helper-process facade (no framework load command)
+  ChromiumWrapper/      C++ — libcef_dll wrapper (vendored from CEF, BSD-licensed)
+  ChromiumViewObjC/     Obj-C++ — handler subclasses, glue, public Obj-C surface
+  ChromiumKit/          Swift — full host surface (links the framework)
+  ChromiumKitHelper/    Swift — helper-process facade (no framework load command)
 
 Examples/Demo/      Shell-built reference .app
-Examples/HelloCEF/  Xcode project consumer reference
+Examples/HelloChromium/  Xcode project consumer reference
 
 Resources/entitlements/
-  CEFKit.host.entitlements    Apply to your host app target
-  CEFKit.helper.entitlements  Apply to your helper executable target
+  ChromiumKit.host.entitlements    Apply to your host app target
+  ChromiumKit.helper.entitlements  Apply to your helper executable target
 
 scripts/
   fetch-cef.sh             download + build the CEF binary distribution into vendor/cef/
   build-cef-artifacts.sh   package framework as CEF.xcframework into artifacts/
-  embed-cefkit.sh          the script consumers wire into Xcode Run Script Phase
+  embed-chromiumkit.sh          the script consumers wire into Xcode Run Script Phase
   build-demo.sh            local build of Examples/Demo
   helper.plist.in          template the embed script fills out for each helper
 
@@ -124,7 +137,7 @@ The script:
 1. Verifies the version exists on the CEF builds CDN
 2. Updates `CEF_VERSION` in `scripts/fetch-cef.sh`
 3. Wipes `vendor/cef/` and re-fetches
-4. **Re-vendors `Sources/CEFWrapper/include/` + `libcef_dll/` from the new tarball** (header API drift between versions means wrapper sources MUST match the binary — this is the part you can't skip and that is easy to forget if doing it by hand)
+4. **Re-vendors `Sources/ChromiumWrapper/include/` + `libcef_dll/` from the new tarball** (header API drift between versions means wrapper sources MUST match the binary — this is the part you can't skip and that is easy to forget if doing it by hand)
 5. Rebuilds `artifacts/CEF.xcframework.zip`
 6. Computes the new sha256 and patches `Package.swift` to point at the next release URL + checksum
 7. Verifies `swift build` still passes against the new headers
@@ -140,7 +153,7 @@ push to `main`:
 
 - `swift build -c release` — resolves the package, downloads CEF.xcframework
   via the published Release URL, verifies its sha256, compiles the wrapper
-- `xcodebuild` — regenerates `Examples/HelloCEF.xcodeproj` from
+- `xcodebuild` — regenerates `Examples/HelloChromium.xcodeproj` from
   `project.yml` via xcodegen, then builds it. Catches drift between the
   committed Xcode project and the spec, and catches any embedding-script
   regressions.
@@ -159,17 +172,17 @@ different bundle ID. The package ships:
 
 - `Chromium Embedded Framework.framework` as a binary XCFramework target
 - `libcef_dll_wrapper` C++ sources compiled in-tree
-- `CEFWebView` + `CEFApplication` + `CEFConfiguration` + `CEFNavigationDelegate` Obj-C surface
+- `ChromiumWebView` + `ChromiumApplication` + `ChromiumConfiguration` + `ChromiumNavigationDelegate` Obj-C surface
 - Swift typed `evaluateJavaScript<T:Decodable>` + async wrappers
 
 You don't write any of the helper boilerplate. You add a one-line Swift
-helper target (`exit(Int32(CEFApplication.runHelper()))`), then the embed
+helper target (`exit(Int32(ChromiumApplication.runHelper()))`), then the embed
 script copies that binary into all 5 helper `.app` bundles at build time.
 
 ---
 
 ## License
 
-CEF (vendored portions in `Sources/CEFWrapper/`) is BSD-licensed; see
-`vendor/cef/LICENSE.txt` after fetching. Code in `Sources/CEFViewObjC/` and
-`Sources/CEFKit/` is original work — TBD license.
+CEF (vendored portions in `Sources/ChromiumWrapper/`) is BSD-licensed; see
+`vendor/cef/LICENSE.txt` after fetching. Code in `Sources/ChromiumViewObjC/` and
+`Sources/ChromiumKit/` is original work — TBD license.

@@ -38,7 +38,7 @@ struct AddressBar: View { ... }
 ```swift
 // main.swift — entry point only
 let delegate = AppDelegate()
-exit(Int32(CEFApplication.run(configuration: config) { ... }))
+exit(Int32(ChromiumApplication.run(configuration: config) { ... }))
 ```
 
 ## ❌

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build CEF artifacts for the CEFView SwiftPM package.
+# Build CEF artifacts for the ChromiumKit SwiftPM package.
 #
 # Inputs:  vendor/cef/  (extracted CEF binary distribution)
 # Outputs: artifacts/CEF.xcframework
