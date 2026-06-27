@@ -7,6 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class ChromiumView;
 @class ChromiumConfiguration;
 @protocol ChromiumNavigationDelegate;
+@protocol ChromiumUIDelegate;
 
 /// Backing object for a single favicon download. Identity = URL: when the
 /// page swaps to a new favicon URL, `ChromiumView.favicon` is replaced with a
@@ -93,6 +94,45 @@ NS_SWIFT_NAME(ChromiumNavigationDelegate)
     NS_SWIFT_NAME(webView(_:requestsNewTabFor:userGesture:disposition:));
 @end
 
+/// Intercept the browser's JS dialogs (`alert`, `confirm`, `prompt`,
+/// `onbeforeunload`). Mirrors `WKUIDelegate`'s panel methods.
+///
+/// Implement a method to take over that dialog type — Chromium suspends the
+/// page until the consumer's `completionHandler` fires. Leave a method
+/// unimplemented (or don't set the delegate) and Chromium falls back to its
+/// own native modal dialog.
+///
+/// `completionHandler` MUST be called exactly once on the main thread.
+/// Dropping it leaves the page hung; calling twice traps.
+NS_SWIFT_NAME(ChromiumUIDelegate)
+@protocol ChromiumUIDelegate <NSObject>
+@optional
+- (void)webView:(ChromiumView*)webView
+    runJavaScriptAlertPanelWithMessage:(NSString*)message
+                            originURL:(nullable NSURL*)originURL
+                    completionHandler:(void (^)(void))completionHandler
+    NS_SWIFT_NAME(webView(_:runJavaScriptAlertPanelWithMessage:originURL:completionHandler:));
+
+- (void)webView:(ChromiumView*)webView
+    runJavaScriptConfirmPanelWithMessage:(NSString*)message
+                              originURL:(nullable NSURL*)originURL
+                      completionHandler:(void (^)(BOOL result))completionHandler
+    NS_SWIFT_NAME(webView(_:runJavaScriptConfirmPanelWithMessage:originURL:completionHandler:));
+
+- (void)webView:(ChromiumView*)webView
+    runJavaScriptTextInputPanelWithPrompt:(NSString*)prompt
+                              defaultText:(nullable NSString*)defaultText
+                                originURL:(nullable NSURL*)originURL
+                        completionHandler:(void (^)(NSString* _Nullable result))completionHandler
+    NS_SWIFT_NAME(webView(_:runJavaScriptTextInputPanelWithPrompt:defaultText:originURL:completionHandler:));
+
+- (void)webView:(ChromiumView*)webView
+    runBeforeUnloadConfirmPanelWithMessage:(NSString*)message
+                                  isReload:(BOOL)isReload
+                         completionHandler:(void (^)(BOOL result))completionHandler
+    NS_SWIFT_NAME(webView(_:runBeforeUnloadConfirmPanelWithMessage:isReload:completionHandler:));
+@end
+
 NS_SWIFT_NAME(ChromiumWebView)
 @interface ChromiumView : NSView
 
@@ -108,6 +148,7 @@ NS_SWIFT_NAME(ChromiumWebView)
 /// callback writing to one is harmless. KVO-observable.
 @property (nonatomic, readonly, nullable) CEFFaviconRef* favicon;
 @property (nonatomic, weak, nullable) id<ChromiumNavigationDelegate> navigationDelegate;
+@property (nonatomic, weak, nullable) id<ChromiumUIDelegate> uiDelegate;
 
 - (instancetype)initWithFrame:(NSRect)frame URL:(nullable NSURL*)url NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithFrame:(NSRect)frame NS_UNAVAILABLE;

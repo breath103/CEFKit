@@ -12,6 +12,10 @@ final class BrowserTab: Identifiable {
         didSet { webView?.navigationDelegate = navigationDelegate }
     }
 
+    @ObservationIgnored weak var uiDelegate: ChromiumUIDelegate? {
+        didSet { webView?.uiDelegate = uiDelegate }
+    }
+
     private var snapshotURL: URL
     private var snapshotTitle: String?
     private var snapshotFaviconImage: NSImage?
@@ -22,7 +26,8 @@ final class BrowserTab: Identifiable {
 
     init(url: URL) {
         snapshotURL = url
-        webView = ChromiumWebView(frame: .zero, url: url)
+        let view = ChromiumWebView(frame: .zero, url: url)
+        webView = view
     }
 
     /// Adopts a ChromiumWebView whose CefBrowser will arrive via OnAfterCreated
@@ -45,6 +50,7 @@ final class BrowserTab: Identifiable {
         if let url { snapshotURL = url }
         let view = ChromiumWebView(frame: .zero, url: snapshotURL)
         view.navigationDelegate = navigationDelegate
+        view.uiDelegate = uiDelegate
         webView = view
     }
 
