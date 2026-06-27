@@ -196,7 +196,6 @@ class _CEFClient : public CefClient,
     browser_ = nullptr;
     devtools_registration_ = nullptr;
     owner_ = nil;
-    CefQuitMessageLoop();
   }
 
   void OnLoadingStateChange(CefRefPtr<CefBrowser>, bool isLoading,
@@ -304,6 +303,12 @@ class _CEFClient : public CefClient,
     self.wantsLayer = YES;
   }
   return self;
+}
+
+- (void)dealloc {
+  if (auto b = [self _browser]) {
+    b->GetHost()->CloseBrowser(/*force_close=*/true);
+  }
 }
 
 + (CEFView*)popupView {

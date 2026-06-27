@@ -19,7 +19,10 @@ import Observation
 /// ```
 @Observable
 public final class CEFWebViewObservable {
-    public let webView: CEFWebView
+    // weak: the observable is attached to the webView via
+    // objc_setAssociatedObject (RETAIN). A strong `webView` here would form
+    // a cycle and the webView would never deallocate.
+    @ObservationIgnored public weak var webView: CEFWebView?
 
     public private(set) var title: String?
     public private(set) var url: URL?

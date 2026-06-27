@@ -49,6 +49,20 @@
                ReferencedContainer = "container:HelloCEF.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AA0100000000000000000009"
+               BuildableName = "HelloCEFUnitTests.xctest"
+               BlueprintName = "HelloCEFUnitTests"
+               ReferencedContainer = "container:HelloCEF.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -75,6 +89,17 @@
                BlueprintIdentifier = "EB9CF171FEA961C4D5DD7BB5"
                BuildableName = "HelloCEFUITests.xctest"
                BlueprintName = "HelloCEFUITests"
+               ReferencedContainer = "container:HelloCEF.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AA0100000000000000000009"
+               BuildableName = "HelloCEFUnitTests.xctest"
+               BlueprintName = "HelloCEFUnitTests"
                ReferencedContainer = "container:HelloCEF.xcodeproj">
             </BuildableReference>
          </TestableReference>
