@@ -14,6 +14,8 @@
 		2F1A3066E37B8E8E6A7C2A73 /* TabRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC7C6966EE82C0EA29D3642 /* TabRow.swift */; };
 		32AC7EB384F122023D6D7459 /* AddressBarUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12BC67A955873A4B42B546B /* AddressBarUITests.swift */; };
 		46CE3685B4EE99ABB5FCB1DC /* CEFKit in Frameworks */ = {isa = PBXBuildFile; productRef = CF71C10404166E067FC7258D /* CEFKit */; };
+		AA0100000000000000000002 /* CEFWebViewLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000001 /* CEFWebViewLifecycleTests.swift */; };
+		AA0100000000000000000003 /* CEFKit in Frameworks */ = {isa = PBXBuildFile; productRef = AA0100000000000000000004 /* CEFKit */; };
 		5CB7CBA0D9AF7B72733E5DF5 /* TabStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E738C740E5D9AEFE0275B7 /* TabStore.swift */; };
 		5D570BC3524EBC95C465CFFF /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61C9A19F926AA9AE9B58B50 /* main.swift */; };
 		5DDC2CC5345D4B973454C4E7 /* BrowserTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB4DC6907C495D692A8C44E /* BrowserTab.swift */; };
@@ -26,6 +28,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		3FC5C765E27FB60BD728BFB6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FECF69303226A43E8CB90E77 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6ED85C9F76AF13BEA6D3CB40;
+			remoteInfo = HelloCEF;
+		};
+		AA010000000000000000000B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FECF69303226A43E8CB90E77 /* Project object */;
 			proxyType = 1;
@@ -59,6 +68,8 @@
 		BA0618ECD96F997C8E82E3FD /* AddressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBar.swift; sourceTree = "<group>"; };
 		C61C9A19F926AA9AE9B58B50 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		DEC5F40F84ACD1877362CF7E /* HelloCEFUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HelloCEFUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0100000000000000000001 /* CEFWebViewLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEFWebViewLifecycleTests.swift; sourceTree = "<group>"; };
+		AA0100000000000000000006 /* HelloCEFUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HelloCEFUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +78,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				46CE3685B4EE99ABB5FCB1DC /* CEFKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0100000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0100000000000000000003 /* CEFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,6 +175,7 @@
 				3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */,
 				9DBAD8EF5201954E6DA0A8BE /* HelloCEFHelper */,
 				DEC5F40F84ACD1877362CF7E /* HelloCEFUITests.xctest */,
+				AA0100000000000000000006 /* HelloCEFUnitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -164,8 +184,17 @@
 			isa = PBXGroup;
 			children = (
 				83566068C008F800597EC44C /* HelloCEFUITests */,
+				AA0100000000000000000005 /* HelloCEFUnitTests */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		AA0100000000000000000005 /* HelloCEFUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				AA0100000000000000000001 /* CEFWebViewLifecycleTests.swift */,
+			);
+			path = HelloCEFUnitTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -211,6 +240,26 @@
 			productReference = 3C7EEEE7190F4BB20717F2FC /* HelloCEF.app */;
 			productType = "com.apple.product-type.application";
 		};
+		AA0100000000000000000009 /* HelloCEFUnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA010000000000000000000C /* Build configuration list for PBXNativeTarget "HelloCEFUnitTests" */;
+			buildPhases = (
+				AA0100000000000000000007 /* Sources */,
+				AA0100000000000000000008 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA010000000000000000000A /* PBXTargetDependency */,
+			);
+			name = HelloCEFUnitTests;
+			packageProductDependencies = (
+				AA0100000000000000000004 /* CEFKit */,
+			);
+			productName = HelloCEFUnitTests;
+			productReference = AA0100000000000000000006 /* HelloCEFUnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		EB9CF171FEA961C4D5DD7BB5 /* HelloCEFUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BF4B701779C3F509130DEB4C /* Build configuration list for PBXNativeTarget "HelloCEFUITests" */;
@@ -252,6 +301,11 @@
 						ProvisioningStyle = Manual;
 						TestTargetID = 6ED85C9F76AF13BEA6D3CB40;
 					};
+					AA0100000000000000000009 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+						TestTargetID = 6ED85C9F76AF13BEA6D3CB40;
+					};
 				};
 			};
 			buildConfigurationList = C35EAB0545669EE3FD1FAD7B /* Build configuration list for PBXProject "HelloCEF" */;
@@ -274,6 +328,7 @@
 				6ED85C9F76AF13BEA6D3CB40 /* HelloCEF */,
 				117D1B1FBD834F3BFD0399B0 /* HelloCEFHelper */,
 				EB9CF171FEA961C4D5DD7BB5 /* HelloCEFUITests */,
+				AA0100000000000000000009 /* HelloCEFUnitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -336,6 +391,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0100000000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0100000000000000000002 /* CEFWebViewLifecycleTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BF2C320C9C7230FC22BC9760 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -351,6 +414,11 @@
 			isa = PBXTargetDependency;
 			target = 6ED85C9F76AF13BEA6D3CB40 /* HelloCEF */;
 			targetProxy = 3FC5C765E27FB60BD728BFB6 /* PBXContainerItemProxy */;
+		};
+		AA010000000000000000000A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6ED85C9F76AF13BEA6D3CB40 /* HelloCEF */;
+			targetProxy = AA010000000000000000000B /* PBXContainerItemProxy */;
 		};
 		D1E0B3BF396B136549688B0D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -579,6 +647,40 @@
 			};
 			name = Release;
 		};
+		AA010000000000000000000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEFUnitTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HelloCEF.app/Contents/MacOS/HelloCEF";
+			};
+			name = Debug;
+		};
+		AA010000000000000000000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.HelloCEFUnitTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HelloCEF.app/Contents/MacOS/HelloCEF";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -618,6 +720,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		AA010000000000000000000C /* Build configuration list for PBXNativeTarget "HelloCEFUnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA010000000000000000000D /* Debug */,
+				AA010000000000000000000E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -633,6 +744,10 @@
 			productName = CEFKitHelper;
 		};
 		CF71C10404166E067FC7258D /* CEFKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CEFKit;
+		};
+		AA0100000000000000000004 /* CEFKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CEFKit;
 		};
