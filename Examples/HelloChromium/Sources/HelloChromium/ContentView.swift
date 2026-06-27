@@ -1,0 +1,37 @@
+import ChromiumKit
+import SwiftUI
+
+struct ContentView: View {
+    @Bindable var store: TabStore
+
+    var body: some View {
+        NavigationSplitView {
+            List(selection: $store.selectedID) {
+                ForEach(store.tabs) { tab in
+                    TabRow(tab: tab).tag(tab.id)
+                }
+            }
+            .navigationTitle("Tabs")
+            .toolbar {
+                ToolbarItem {
+                    Button { store.newTab() } label: { Image(systemName: "plus") }
+                        .help("New tab")
+                }
+            }
+            .frame(minWidth: 220)
+        } detail: {
+            VStack(spacing: 0) {
+                AddressBar(tab: store.selectedTab)
+                ZStack {
+                    ForEach(store.tabs) { tab in
+                        if let webView = tab.webView {
+                            ChromiumWebViewRepresentable(webView)
+                                .opacity(tab.id == store.selectedID ? 1 : 0)
+                                .allowsHitTesting(tab.id == store.selectedID)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

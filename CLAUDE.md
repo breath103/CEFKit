@@ -31,5 +31,5 @@ not by the pipeline. If you see lint violations in `main`, they slipped past
 the pre-PR step; fix them in the next PR.
 
 Config lives at `.swiftlint.yml` and `.swiftformat` at the repo root.
-The Objective-C++ shims under `Sources/CEFViewObjC` and the C++ wrapper
-under `Sources/CEFWrapper` are excluded — they're not Swift.
+The Objective-C++ shims under `Sources/ChromiumViewObjC` and the C++ wrapper
+under `Sources/ChromiumWrapper` are excluded — they're not Swift.

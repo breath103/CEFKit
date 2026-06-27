@@ -1,4 +1,4 @@
-// Helper sub-process — does not link our CEFViewObjC layer. Pulling in the
+// Helper sub-process — does not link our ChromiumViewObjC layer. Pulling in the
 // host's ObjC classes via -Wl,-ObjC drags in CEF cpptoc/ctocpp template
 // instantiations that conflict with the framework's own and trip a Chromium
 // CHECK inside cef_execute_process.

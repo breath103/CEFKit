@@ -4,12 +4,12 @@
 
 Today CEF's `OnBeforePopup` is not overridden. The default returns `false`,
 which means CEF spawns its own popup browser — a detached child with no UI
-chrome and no integration with HelloCEF's `TabStore`. `target="_blank"` clicks
+chrome and no integration with HelloChromium's `TabStore`. `target="_blank"` clicks
 and `window.open(...)` calls effectively get lost.
 
 ## Goal
 
-`target="_blank"` → new tab in HelloCEF. `cmd+click` → background tab. The
+`target="_blank"` → new tab in HelloChromium. `cmd+click` → background tab. The
 new tab's `window.opener` references the opener page; `window.open(...)` in the
 opener returns a usable `WindowProxy`. Cross-tab `postMessage` works.
 
@@ -47,7 +47,7 @@ bool OnBeforePopup(
 ```
 
 By mutating `windowInfo` to point at an NSView we control and replacing
-`client` with a fresh `_CEFClient` bound to our new `CEFView`, we direct the
+`client` with a fresh `_ChromiumClient` bound to our new `ChromiumView`, we direct the
 popup browser into our tab UI while Chromium still treats it as "allowed" and
 preserves the opener relationship.
 
@@ -67,33 +67,33 @@ preserves the opener relationship.
 
 ### Three new pieces
 
-1. **Shell-mode `CEFView` initializer** (`CEFViewObjC`). Creates the NSView and
-   the `_CEFClient` upfront, but does NOT call `CefBrowserHost::CreateBrowser`.
+1. **Shell-mode `ChromiumView` initializer** (`ChromiumViewObjC`). Creates the NSView and
+   the `_ChromiumClient` upfront, but does NOT call `CefBrowserHost::CreateBrowser`.
    `viewDidMoveToWindow` skips its usual create step when shell-mode is set.
-   The browser arrives via `_CEFClient::OnAfterCreated` once CEF spawns the
+   The browser arrives via `_ChromiumClient::OnAfterCreated` once CEF spawns the
    popup. From the consumer side everything else is identical — `load`,
    `goBack`, etc. already null-guard via `_client->browser()`.
 
-2. **`OnBeforePopup` override** (`_CEFClient` in `CEFView.mm`). Runs on the
+2. **`OnBeforePopup` override** (`_ChromiumClient` in `ChromiumView.mm`). Runs on the
    CEF UI thread = NSApp main thread (Chromium uses cocoa main runloop via
    `CefRunMessageLoop`), so we can call into AppKit / our delegate directly.
    Dispatch on `target_disposition`. For TAB dispositions:
    - Call `[delegate webView:self requestsNewTabForURL:userGesture:disposition:]`
-     synchronously. Delegate returns a shell `CEFView`.
+     synchronously. Delegate returns a shell `ChromiumView`.
    - `windowInfo.SetAsChild((__bridge void*)shell, ...)`.
-   - `client = shell.internalClient` (need a new private getter on `CEFView`).
+   - `client = shell.internalClient` (need a new private getter on `ChromiumView`).
    - Return `false`.
 
-3. **Delegate hook** (`CEFNavigationDelegate` in `include/CEFViewObjC.h`,
-   bridged through `CEFKit`). New optional method:
+3. **Delegate hook** (`ChromiumNavigationDelegate` in `include/ChromiumViewObjC.h`,
+   bridged through `ChromiumKit`). New optional method:
    ```objc
-   - (CEFView* _Nullable)webView:(CEFView*)opener
+   - (ChromiumView* _Nullable)webView:(ChromiumView*)opener
        requestsNewTabForURL:(NSURL*)url
        userGesture:(BOOL)userGesture
        disposition:(CEFTabDisposition)disposition;
    ```
    Returning `nil` falls back to CEF's default popup behavior. Returning a
-   shell `CEFView` claims the popup.
+   shell `ChromiumView` claims the popup.
 
 ### Parent NSView wrinkle
 
@@ -104,15 +104,15 @@ mounts the new tab via the existing ZStack, which fires
 `viewDidMoveToWindow` on the shell — at which point CEF's browser NSView
 inherits a real window and starts rendering. No re-parenting needed.
 
-## HelloCEF wiring
+## HelloChromium wiring
 
 - `TabStore.newEmptyTab() -> BrowserTab` — returns a tab whose `webView` is a
   shell. Snapshot URL is the target URL (so the row's title fallback isn't
   empty).
 - `AppDelegate.webView(_:requestsNewTabFor:userGesture:disposition:)` — calls
   `store.newEmptyTab(...)`, sets `store.selectedID = newTab.id` if foreground.
-- `BrowserTab` already supports `webView: CEFWebView?`; shell mode just means
-  webView is a CEFView that hasn't received its browser yet.
+- `BrowserTab` already supports `webView: ChromiumWebView?`; shell mode just means
+  webView is a ChromiumView that hasn't received its browser yet.
 
 ## Verification
 
@@ -129,12 +129,12 @@ inherits a real window and starts rendering. No re-parenting needed.
 - **Delegate returns nil mid-flow.** Fall back: return `false` from
   `OnBeforePopup` without mutating windowInfo/client → CEF creates its own
   popup window (today's behavior). No regression, just no integration.
-- **Shell CEFView mounted before browser arrives.** `load(_:)` etc. no-op
+- **Shell ChromiumView mounted before browser arrives.** `load(_:)` etc. no-op
   via `_browser` null guard; the URL is queued nowhere. Acceptable: the popup
   is CEF-initiated, it'll navigate to `target_url` on its own.
 - **Same-origin cross-tab JS could leak references after we tear down the
   child tab.** Standard browser semantics — opener WindowProxy becomes
-  "closed" when the popup closes. CEFView.dealloc closes the browser cleanly
+  "closed" when the popup closes. ChromiumView.dealloc closes the browser cleanly
   via `OnBeforeClose`; opener stays valid until then.
 
 ## Out of scope

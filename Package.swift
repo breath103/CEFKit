@@ -2,16 +2,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "CEFKit",
+    name: "ChromiumKit",
     platforms: [.macOS(.v14)],
     products: [
         // Full surface for the host app — links Chromium Embedded Framework.
-        .library(name: "CEFKit", targets: ["CEFKit"]),
+        .library(name: "ChromiumKit", targets: ["ChromiumKit"]),
         // Minimal surface for helper sub-process executables. Does NOT pull in
         // the CCEF binary framework, so SPM/clang doesn't bake a host-shaped
         // @executable_path/../Frameworks/... load command into the helper.
         // The helper dlopens the framework at runtime via CefScopedLibraryLoader.
-        .library(name: "CEFKitHelper", targets: ["CEFKitHelper"])
+        .library(name: "ChromiumKitHelper", targets: ["ChromiumKitHelper"])
     ],
     targets: [
         // Prebuilt Chromium Embedded Framework, distributed as an XCFramework
@@ -26,8 +26,8 @@ let package = Package(
         // CEF's libcef_dll wrapper. Vendored from the CEF binary distribution
         // (BSD-licensed). Compiled in-tree on the consumer machine.
         .target(
-            name: "CEFWrapper",
-            path: "Sources/CEFWrapper",
+            name: "ChromiumWrapper",
+            path: "Sources/ChromiumWrapper",
             exclude: [
                 "libcef_dll/CMakeLists.txt"
             ],
@@ -49,12 +49,12 @@ let package = Package(
         // Obj-C++ glue: owns CefBrowser, implements CefClient handlers,
         // exposes a thin Obj-C surface that Swift can import.
         .target(
-            name: "CEFViewObjC",
-            dependencies: ["CEFWrapper"],
-            path: "Sources/CEFViewObjC",
+            name: "ChromiumViewObjC",
+            dependencies: ["ChromiumWrapper"],
+            path: "Sources/ChromiumViewObjC",
             publicHeadersPath: "include",
             cxxSettings: [
-                .headerSearchPath("../CEFWrapper"),
+                .headerSearchPath("../ChromiumWrapper"),
                 .define("__STDC_CONSTANT_MACROS"),
                 .define("__STDC_FORMAT_MACROS"),
                 .define("USING_CEF_SHARED")
@@ -62,24 +62,24 @@ let package = Package(
         ),
 
         // Public Swift API: re-exports + sugar (typed/async evaluateJavaScript,
-        // CEFConfiguration convenience init). Marquee type is CEFWebView.
+        // ChromiumConfiguration convenience init). Marquee type is ChromiumWebView.
         .target(
-            name: "CEFKit",
-            dependencies: ["CEFViewObjC", "CCEF"],
-            path: "Sources/CEFKit"
+            name: "ChromiumKit",
+            dependencies: ["ChromiumViewObjC", "CCEF"],
+            path: "Sources/ChromiumKit"
         ),
 
         // Helper sub-process facade — no CCEF dep.
         .target(
-            name: "CEFKitHelper",
-            dependencies: ["CEFViewObjC"],
-            path: "Sources/CEFKitHelper"
+            name: "ChromiumKitHelper",
+            dependencies: ["ChromiumViewObjC"],
+            path: "Sources/ChromiumKitHelper"
         ),
 
         .testTarget(
-            name: "CEFKitTests",
-            dependencies: ["CEFKit"],
-            path: "Tests/CEFKitTests"
+            name: "ChromiumKitTests",
+            dependencies: ["ChromiumKit"],
+            path: "Tests/ChromiumKitTests"
         )
     ],
     cxxLanguageStandard: .cxx17

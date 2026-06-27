@@ -1,6 +1,6 @@
-# Integrating CEFKit into a macOS app
+# Integrating ChromiumKit into a macOS app
 
-This is the WKWebView-style integration story. You add CEFKit as a Swift
+This is the WKWebView-style integration story. You add ChromiumKit as a Swift
 Package dependency in Xcode, add one Run Script Build Phase, and ship.
 
 ---
@@ -12,13 +12,13 @@ your host's `Contents/Frameworks/` directory. SwiftPM has no concept of
 embedding nested `.app` bundles, so the package ships:
 
 - `Chromium Embedded Framework.framework` as an XCFramework (binaryTarget) —
-  Xcode embeds it for you automatically when you depend on the `CEFKit`
+  Xcode embeds it for you automatically when you depend on the `ChromiumKit`
   product.
 - A prebuilt **helper executable** + plist template — your Run Script copies
   this into five `.app` bundles named `${PRODUCT_NAME} Helper{|.GPU|.Renderer|.Plugin|.Alerts}.app`.
 
 You write **zero** custom embed logic. The package provides
-`scripts/embed-cefkit.sh`. Your Run Script Phase invokes it.
+`scripts/embed-chromiumkit.sh`. Your Run Script Phase invokes it.
 
 ---
 
@@ -26,24 +26,24 @@ You write **zero** custom embed logic. The package provides
 
 1. **File → Add Package Dependencies…**
 2. Enter the package URL (or pick "Add Local…" pointing at your checkout).
-3. Add the `CEFKit` library product to your app target.
+3. Add the `ChromiumKit` library product to your app target.
 
 In your code:
 
 ```swift
 import AppKit
-import CEFKit
+import ChromiumKit
 
 @main
 struct App {
     static func main() {
-        let cfg = CEFConfiguration(
+        let cfg = ChromiumConfiguration(
             cachePath: FileManager.default
                 .urls(for: .cachesDirectory, in: .userDomainMask)[0]
                 .appendingPathComponent(Bundle.main.bundleIdentifier!))
-        exit(Int32(CEFApplication.run(configuration: cfg) {
+        exit(Int32(ChromiumApplication.run(configuration: cfg) {
             let win = NSWindow(...)
-            let webView = CEFWebView(frame: ..., url: URL(string: "https://example.com")!)
+            let webView = ChromiumWebView(frame: ..., url: URL(string: "https://example.com")!)
             win.contentView = webView
             win.makeKeyAndOrderFront(nil)
         }))
@@ -56,12 +56,12 @@ form (literally one line):
 
 ```swift
 // HelperApp/main.swift
-import CEFKit
-exit(Int32(CEFApplication.runHelper()))
+import ChromiumKit
+exit(Int32(ChromiumApplication.runHelper()))
 ```
 
 In Xcode: create a second target of type **Command Line Tool**, link the
-`CEFKit` library, set its bundle identifier to `${PRODUCT_BUNDLE_IDENTIFIER}.helper.shared`
+`ChromiumKit` library, set its bundle identifier to `${PRODUCT_BUNDLE_IDENTIFIER}.helper.shared`
 or similar. The Run Script (below) copies this binary into all five helper
 slots — you do not create five helper targets.
 
@@ -74,7 +74,7 @@ Place it **after** "Embed Frameworks" but **before** any code-signing-only
 phases.
 
 ```sh
-"$BUILD_DIR/../../SourcePackages/checkouts/CEFKit/scripts/embed-cefkit.sh"
+"$BUILD_DIR/../../SourcePackages/checkouts/ChromiumKit/scripts/embed-chromiumkit.sh"
 ```
 
 Required environment variables (Xcode already sets the first three; you set
@@ -86,19 +86,19 @@ shell vars, OR inline):
 | `BUILT_PRODUCTS_DIR` | provided by Xcode |
 | `PRODUCT_NAME` | provided by Xcode |
 | `PRODUCT_BUNDLE_IDENTIFIER` | provided by Xcode |
-| `CEFKIT_FRAMEWORK_PATH` | path to `Chromium Embedded Framework.framework` shipped by the package |
-| `CEFKIT_HELPER_PATH` | path to your built helper Mach-O executable (e.g. `$BUILT_PRODUCTS_DIR/MyAppHelper`) |
-| `CEFKIT_HELPER_PLIST` | `$SRCROOT/../SourcePackages/checkouts/CEFKit/scripts/helper.plist.in` |
+| `CHROMIUMKIT_FRAMEWORK_PATH` | path to `Chromium Embedded Framework.framework` shipped by the package |
+| `CHROMIUMKIT_HELPER_PATH` | path to your built helper Mach-O executable (e.g. `$BUILT_PRODUCTS_DIR/MyAppHelper`) |
+| `CHROMIUMKIT_HELPER_PLIST` | `$SRCROOT/../SourcePackages/checkouts/ChromiumKit/scripts/helper.plist.in` |
 | `EXPANDED_CODE_SIGN_IDENTITY` | provided by Xcode |
 
 Suggested inline script body:
 
 ```sh
-PKG="$BUILD_DIR/../../SourcePackages/checkouts/CEFKit"
-export CEFKIT_FRAMEWORK_PATH="$PKG/artifacts/CEF.xcframework/macos-arm64/Chromium Embedded Framework.framework"
-export CEFKIT_HELPER_PATH="$BUILT_PRODUCTS_DIR/MyAppHelper"
-export CEFKIT_HELPER_PLIST="$PKG/scripts/helper.plist.in"
-"$PKG/scripts/embed-cefkit.sh"
+PKG="$BUILD_DIR/../../SourcePackages/checkouts/ChromiumKit"
+export CHROMIUMKIT_FRAMEWORK_PATH="$PKG/artifacts/CEF.xcframework/macos-arm64/Chromium Embedded Framework.framework"
+export CHROMIUMKIT_HELPER_PATH="$BUILT_PRODUCTS_DIR/MyAppHelper"
+export CHROMIUMKIT_HELPER_PLIST="$PKG/scripts/helper.plist.in"
+"$PKG/scripts/embed-chromiumkit.sh"
 ```
 
 ---
@@ -134,8 +134,8 @@ into your project and point your targets at them:
 
 | Template | Apply to |
 |---|---|
-| `Resources/entitlements/CEFKit.host.entitlements` | Your host app target (`CODE_SIGN_ENTITLEMENTS` build setting) |
-| `Resources/entitlements/CEFKit.helper.entitlements` | Your helper executable target |
+| `Resources/entitlements/ChromiumKit.host.entitlements` | Your host app target (`CODE_SIGN_ENTITLEMENTS` build setting) |
+| `Resources/entitlements/ChromiumKit.helper.entitlements` | Your helper executable target |
 
 Both files set:
 
@@ -156,18 +156,18 @@ supported.
 
 ### Helper bundle signing under hardened runtime
 
-The `embed-cefkit.sh` script intentionally does **not** re-sign helper
+The `embed-chromiumkit.sh` script intentionally does **not** re-sign helper
 bundles (their linker-signed signatures are what Chromium's IPC handshake
 validates byte-for-byte in dev builds). For Developer ID + Hardened Runtime
 production builds you typically *do* need to re-sign helpers with your
 identity AND apply the helper entitlements file. This re-sign must happen
-*after* `embed-cefkit.sh` runs but *before* Xcode signs the host. If you
-need this in your build, add a second Run Script Phase after the CEFKit
+*after* `embed-chromiumkit.sh` runs but *before* Xcode signs the host. If you
+need this in your build, add a second Run Script Phase after the ChromiumKit
 one:
 
 ```sh
 HOST_BUNDLE_ID="$PRODUCT_BUNDLE_IDENTIFIER"
-ENT="$SRCROOT/path/to/CEFKit.helper.entitlements"
+ENT="$SRCROOT/path/to/ChromiumKit.helper.entitlements"
 for h in "$BUILT_PRODUCTS_DIR/$PRODUCT_NAME.app/Contents/Frameworks/"*Helper*.app; do
   codesign --force --sign "$EXPANDED_CODE_SIGN_IDENTITY" \
     --entitlements "$ENT" --timestamp --options runtime "$h"

@@ -1,6 +1,6 @@
 # Prefer `@Observable` over `ObservableObject` + `@Published`
 
-This project targets macOS 14 (see `Examples/HelloCEF/project.yml` and
+This project targets macOS 14 (see `Examples/HelloChromium/project.yml` and
 `Package.swift`), so the Observation framework is available everywhere.
 Use the `@Observable` macro for reactive model types — not the legacy
 `ObservableObject` / `@Published` / `@ObservedObject` / `@StateObject`

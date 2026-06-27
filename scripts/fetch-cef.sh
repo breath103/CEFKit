@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Re-fetch the CEF binary distribution into vendor/cef/. Pinned to the version
-# Sources/CEFWrapper was vendored from — bumping this requires re-vendoring
-# Sources/CEFWrapper/include + Sources/CEFWrapper/libcef_dll too.
+# Sources/ChromiumWrapper was vendored from — bumping this requires re-vendoring
+# Sources/ChromiumWrapper/include + Sources/ChromiumWrapper/libcef_dll too.
 
 set -euo pipefail
 

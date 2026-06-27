@@ -7,8 +7,8 @@ excluded:
   - .build
   - vendor
   - artifacts
-  - Sources/CEFViewObjC
-  - Sources/CEFWrapper
+  - Sources/ChromiumViewObjC
+  - Sources/ChromiumWrapper
 
 disabled_rules:
   - todo
