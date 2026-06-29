@@ -99,7 +99,7 @@ scripts/
   build-cef-artifacts.sh   package framework as CEF.xcframework into artifacts/
   embed-chromiumkit.sh          the script consumers wire into Xcode Run Script Phase
   build-demo.sh            local build of Examples/Demo
-  tests.swift              typed runner — ui/unit tests + build/xcode/ci (mirrors ci.yml)
+  cli.swift                typed runner — ui/unit tests + build/xcode/ci (mirrors ci.yml)
   helper.plist.in          template the embed script fills out for each helper
 
 vendor/cef/       NOT in git — fetched via scripts/fetch-cef.sh
@@ -149,21 +149,21 @@ commit landing on `main` simultaneously with the GitHub Release upload.
 
 ## Testing & local CI
 
-`scripts/tests.swift` is a small typed (Swift) runner for both the test suites
+`scripts/cli.swift` is a small typed (Swift) runner for both the test suites
 and the CI build steps. It fetches CEF if `vendor/cef/` is missing, then runs
 the requested command. The UI suite launches the real app, spins up CEF's
 multi-process engine, loads live pages, and drives the UI (address bar, tab
 hibernate/wake, `target="_blank"`).
 
 ```sh
-./scripts/tests.swift                # list commands
-./scripts/tests.swift ui             # all UI tests
-./scripts/tests.swift unit           # all unit tests (fast, no UI automation)
-./scripts/tests.swift ui AddressBarUITests/testEscapeCancelsEdit  # one test
-./scripts/tests.swift build          # swift build -c release (package CI job)
-./scripts/tests.swift xcode          # xcodegen + xcodebuild the example (xcode CI job)
-./scripts/tests.swift ci             # run both CI jobs locally, before pushing
-./scripts/tests.swift <cmd> --help   # per-command help
+./scripts/cli.swift                # list commands
+./scripts/cli.swift ui             # all UI tests
+./scripts/cli.swift unit           # all unit tests (fast, no UI automation)
+./scripts/cli.swift ui AddressBarUITests/testEscapeCancelsEdit  # one test
+./scripts/cli.swift build          # swift build -c release (package CI job)
+./scripts/cli.swift xcode          # xcodegen + xcodebuild the example (xcode CI job)
+./scripts/cli.swift ci             # run both CI jobs locally, before pushing
+./scripts/cli.swift <cmd> --help   # per-command help
 ```
 
 `ci` mirrors [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — run it
