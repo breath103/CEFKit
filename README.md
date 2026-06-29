@@ -99,6 +99,7 @@ scripts/
   build-cef-artifacts.sh   package framework as CEF.xcframework into artifacts/
   embed-chromiumkit.sh          the script consumers wire into Xcode Run Script Phase
   build-demo.sh            local build of Examples/Demo
+  tests.swift              typed test runner — fetch CEF (if needed) + run ui/unit suites
   helper.plist.in          template the embed script fills out for each helper
 
 vendor/cef/       NOT in git — fetched via scripts/fetch-cef.sh
@@ -145,6 +146,26 @@ The script:
 
 You run those final commands manually so the bump is a single, reviewable
 commit landing on `main` simultaneously with the GitHub Release upload.
+
+## Testing
+
+The `HelloChromium` example carries the test suites that exercise the package.
+`scripts/tests.swift` is a small typed (Swift) runner — it fetches CEF if
+`vendor/cef/` is missing, then runs a target. The UI suite launches the real
+app, spins up CEF's multi-process engine, loads live pages, and drives the UI
+(address bar, tab hibernate/wake, `target="_blank"`).
+
+```sh
+./scripts/tests.swift                # list commands
+./scripts/tests.swift ui             # all UI tests
+./scripts/tests.swift unit           # all unit tests (fast, no UI automation)
+./scripts/tests.swift ui AddressBarUITests                     # one test class
+./scripts/tests.swift ui AddressBarUITests/testEscapeCancelsEdit  # one test
+./scripts/tests.swift ui --help      # per-command help
+```
+
+The first run does a one-time ~265MB CEF download; subsequent runs reuse
+`vendor/cef/`. UI tests need a real GUI login session (they drive an app window).
 
 ## Linting
 
