@@ -146,6 +146,28 @@ The script:
 You run those final commands manually so the bump is a single, reviewable
 commit landing on `main` simultaneously with the GitHub Release upload.
 
+## Linting
+
+```sh
+./scripts/lint.sh         # swiftformat (write) + swiftlint --fix, then a final swiftlint pass
+./scripts/lint.sh check   # verify without modifying files (mirrors what a future CI job would do)
+```
+
+The final `swiftlint` pass surfaces anything the autofixer couldn't handle.
+Tools are assumed installed via Homebrew:
+
+```sh
+brew install swiftlint swiftformat
+```
+
+Config lives at `.swiftlint.yml` and `.swiftformat` at the repo root. The
+Objective-C++ shims under `Sources/ChromiumViewObjC` and the C++ wrapper under
+`Sources/ChromiumWrapper` are excluded — they're not Swift.
+
+CI does not run lint yet — the pre-PR lint contract is enforced by
+agents/humans, not the pipeline. If you see lint violations on `main`, they
+slipped past the pre-PR step; fix them in the next PR.
+
 ## CI
 
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every PR and
