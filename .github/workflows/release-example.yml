@@ -1,0 +1,66 @@
+name: release-example
+
+# When a GitHub Release is published (e.g. via `gh release create <tag>` in the
+# bump-cef flow), build the HelloChromium example .app and attach it to that
+# same release. Runs only on release publish — not on every PR/push — so it's
+# cheap (one macOS job per release).
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write # needed to upload the asset to the release
+
+jobs:
+  build-and-attach:
+    name: Build + attach HelloChromium.app
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain versions
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Regenerate HelloChromium.xcodeproj
+        working-directory: Examples/HelloChromium
+        run: xcodegen generate
+
+      # Release build, arm64. The CEF framework + 5 helper bundles are embedded
+      # by the package's Run Script phase, so the .app is self-contained.
+      - name: Build HelloChromium (Release)
+        working-directory: Examples/HelloChromium
+        run: |
+          xcodebuild \
+            -project HelloChromium.xcodeproj \
+            -scheme HelloChromium \
+            -configuration Release \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath build \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY=- \
+            build
+
+      # ditto preserves the bundle + symlinks correctly (plain zip mangles the
+      # framework). Ad-hoc signed only — not notarized, so downloaders get a
+      # Gatekeeper prompt (right-click → Open) on first launch.
+      - name: Zip the .app
+        working-directory: Examples/HelloChromium
+        run: |
+          APP="build/Build/Products/Release/HelloChromium.app"
+          test -d "$APP" || { echo "::error::no .app at $APP"; exit 1; }
+          ZIP="HelloChromium-${{ github.event.release.tag_name }}-arm64.app.zip"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Upload to the release
+        working-directory: Examples/HelloChromium
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "$ZIP" --clobber
