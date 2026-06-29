@@ -62,6 +62,55 @@ func xcodebuildTest(target: String, filter: String?) -> Int32 {
     ])
 }
 
+/// Locate an executable on PATH (like `which`). Returns its path, or nil if absent.
+func which(_ tool: String) -> String? {
+    let proc = Process()
+    proc.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    proc.arguments = ["which", tool]
+    let pipe = Pipe()
+    proc.standardOutput = pipe
+    proc.standardError = FileHandle.nullDevice
+    try? proc.run()
+    proc.waitUntilExit()
+    guard proc.terminationStatus == 0 else { return nil }
+    let out = String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+    return out.isEmpty ? nil : out
+}
+
+/// The `swift-build` CI job: resolve the package, download + checksum the
+/// CEF.xcframework, compile the wrapper.
+func swiftBuildRelease() -> Int32 {
+    print("==> swift build -c release")
+    return run("/usr/bin/env", ["swift", "build", "-c", "release"], cwd: root)
+}
+
+/// The `xcode-build-hellocef` CI job: regenerate the project from project.yml
+/// (when xcodegen is installed, as CI does) and build it for arm64.
+func xcodeBuildExample() -> Int32 {
+    let cef = ensureCEF()
+    if cef != 0 { return cef }
+    let hello = root.appendingPathComponent("Examples/HelloChromium")
+    if which("xcodegen") != nil {
+        print("==> xcodegen generate")
+        let gen = run("/usr/bin/env", ["xcodegen", "generate"], cwd: hello)
+        if gen != 0 { return gen }
+    } else {
+        print("==> xcodegen not installed — building the committed .xcodeproj (CI regenerates it; brew install xcodegen to match)")
+    }
+    print("==> xcodebuild build (HelloChromium, arm64)")
+    return run("/usr/bin/xcodebuild", [
+        "-project", "HelloChromium.xcodeproj",
+        "-scheme", "HelloChromium",
+        "-configuration", "Debug",
+        "-destination", "platform=macOS,arch=arm64",
+        "ONLY_ACTIVE_ARCH=YES",
+        "CODE_SIGN_STYLE=Manual",
+        "CODE_SIGN_IDENTITY=-",
+        "build",
+    ], cwd: hello)
+}
+
 // MARK: - Subcommand model
 
 struct Subcommand {
@@ -73,11 +122,14 @@ struct Subcommand {
     let run: (_ args: [String]) -> Int32
 
     func printHelp() {
+        let invocation = usage.isEmpty
+            ? "scripts/tests.swift \(name)"
+            : "scripts/tests.swift \(name) \(usage)"
         print("""
         \(summary)
 
         USAGE
-          scripts/tests.swift \(name) \(usage)
+          \(invocation)
 
         \(discussion)
 
@@ -140,6 +192,43 @@ let subcommands: [Subcommand] = [
             "scripts/tests.swift unit ChromiumWebViewLifecycleTests",
         ]
     ),
+    Subcommand(
+        name: "build",
+        summary: "swift build -c release (the package CI job).",
+        usage: "",
+        discussion: """
+        Resolves the package, downloads CEF.xcframework from the Release URL in
+        Package.swift, verifies its sha256, and compiles the wrapper sources.
+        Mirrors the swift-build job in .github/workflows/ci.yml.
+        """,
+        examples: ["scripts/tests.swift build"]
+    ) { _ in swiftBuildRelease() },
+    Subcommand(
+        name: "xcode",
+        summary: "Build Examples/HelloChromium (the xcode CI job).",
+        usage: "",
+        discussion: """
+        Regenerates HelloChromium.xcodeproj from project.yml (if xcodegen is
+        installed, as CI does), then builds it for arm64. Mirrors the
+        xcode-build-hellocef job in .github/workflows/ci.yml.
+        """,
+        examples: ["scripts/tests.swift xcode"]
+    ) { _ in xcodeBuildExample() },
+    Subcommand(
+        name: "ci",
+        summary: "Run the full CI suite locally (build + xcode).",
+        usage: "",
+        discussion: """
+        Runs `build` then `xcode` — the two jobs in .github/workflows/ci.yml —
+        stopping at the first failure. CI itself does not run tests; use the
+        `ui` / `unit` commands for those.
+        """,
+        examples: ["scripts/tests.swift ci"]
+    ) { _ in
+        let build = swiftBuildRelease()
+        if build != 0 { return build }
+        return xcodeBuildExample()
+    },
 ]
 
 // MARK: - Top-level dispatch

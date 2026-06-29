@@ -99,7 +99,7 @@ scripts/
   build-cef-artifacts.sh   package framework as CEF.xcframework into artifacts/
   embed-chromiumkit.sh          the script consumers wire into Xcode Run Script Phase
   build-demo.sh            local build of Examples/Demo
-  tests.swift              typed test runner — fetch CEF (if needed) + run ui/unit suites
+  tests.swift              typed runner — ui/unit tests + build/xcode/ci (mirrors ci.yml)
   helper.plist.in          template the embed script fills out for each helper
 
 vendor/cef/       NOT in git — fetched via scripts/fetch-cef.sh
@@ -147,25 +147,30 @@ The script:
 You run those final commands manually so the bump is a single, reviewable
 commit landing on `main` simultaneously with the GitHub Release upload.
 
-## Testing
+## Testing & local CI
 
-The `HelloChromium` example carries the test suites that exercise the package.
-`scripts/tests.swift` is a small typed (Swift) runner — it fetches CEF if
-`vendor/cef/` is missing, then runs a target. The UI suite launches the real
-app, spins up CEF's multi-process engine, loads live pages, and drives the UI
-(address bar, tab hibernate/wake, `target="_blank"`).
+`scripts/tests.swift` is a small typed (Swift) runner for both the test suites
+and the CI build steps. It fetches CEF if `vendor/cef/` is missing, then runs
+the requested command. The UI suite launches the real app, spins up CEF's
+multi-process engine, loads live pages, and drives the UI (address bar, tab
+hibernate/wake, `target="_blank"`).
 
 ```sh
 ./scripts/tests.swift                # list commands
 ./scripts/tests.swift ui             # all UI tests
 ./scripts/tests.swift unit           # all unit tests (fast, no UI automation)
-./scripts/tests.swift ui AddressBarUITests                     # one test class
 ./scripts/tests.swift ui AddressBarUITests/testEscapeCancelsEdit  # one test
-./scripts/tests.swift ui --help      # per-command help
+./scripts/tests.swift build          # swift build -c release (package CI job)
+./scripts/tests.swift xcode          # xcodegen + xcodebuild the example (xcode CI job)
+./scripts/tests.swift ci             # run both CI jobs locally, before pushing
+./scripts/tests.swift <cmd> --help   # per-command help
 ```
 
-The first run does a one-time ~265MB CEF download; subsequent runs reuse
-`vendor/cef/`. UI tests need a real GUI login session (they drive an app window).
+`ci` mirrors [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — run it
+before pushing to catch failures locally. (CI itself does not run the tests;
+use `ui` / `unit` for those.) The first run does a one-time ~265MB CEF
+download; subsequent runs reuse `vendor/cef/`. UI tests need a real GUI login
+session (they drive an app window).
 
 ## Linting
 
