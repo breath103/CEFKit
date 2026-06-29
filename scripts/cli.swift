@@ -1,14 +1,14 @@
 #!/usr/bin/env swift
 //
-// tests.swift — typed test runner for ChromiumKit.
+// cli.swift — typed dev runner for ChromiumKit (tests + CI build steps).
 //
 // Runs the HelloChromium example's test targets against the real app. Fetches
 // the CEF framework first if vendor/cef/ is missing (one-time ~265MB download).
 //
-//   scripts/tests.swift            # list subcommands
-//   scripts/tests.swift ui         # all UI tests
-//   scripts/tests.swift unit       # all unit tests
-//   scripts/tests.swift ui --help  # per-subcommand help
+//   scripts/cli.swift            # list subcommands
+//   scripts/cli.swift ui         # all UI tests
+//   scripts/cli.swift unit       # all unit tests
+//   scripts/cli.swift ui --help  # per-subcommand help
 //
 import Foundation
 
@@ -123,8 +123,8 @@ struct Subcommand {
 
     func printHelp() {
         let invocation = usage.isEmpty
-            ? "scripts/tests.swift \(name)"
-            : "scripts/tests.swift \(name) \(usage)"
+            ? "scripts/cli.swift \(name)"
+            : "scripts/cli.swift \(name) \(usage)"
         print("""
         \(summary)
 
@@ -158,7 +158,7 @@ func testSubcommand(
         // Reject stray flags so typos surface instead of silently running everything.
         let positionals = args.filter { !$0.hasPrefix("-") }
         if let bad = args.first(where: { $0.hasPrefix("-") }) {
-            FileHandle.standardError.write(Data("error: unknown option '\(bad)' (try: scripts/tests.swift \(name) --help)\n".utf8))
+            FileHandle.standardError.write(Data("error: unknown option '\(bad)' (try: scripts/cli.swift \(name) --help)\n".utf8))
             return 2
         }
         if positionals.count > 1 {
@@ -177,9 +177,9 @@ let subcommands: [Subcommand] = [
         suiteHint: "These launch HelloChromium, spin up CEF's multi-process engine, "
             + "load live pages, and drive the UI — so a GUI login session is required.",
         examples: [
-            "scripts/tests.swift ui",
-            "scripts/tests.swift ui AddressBarUITests",
-            "scripts/tests.swift ui AddressBarUITests/testEscapeCancelsEdit",
+            "scripts/cli.swift ui",
+            "scripts/cli.swift ui AddressBarUITests",
+            "scripts/cli.swift ui AddressBarUITests/testEscapeCancelsEdit",
         ]
     ),
     testSubcommand(
@@ -188,8 +188,8 @@ let subcommands: [Subcommand] = [
         summary: "Run the unit-test target (fast, no UI automation).",
         suiteHint: "Lifecycle/retain-cycle checks that don't drive the app window.",
         examples: [
-            "scripts/tests.swift unit",
-            "scripts/tests.swift unit ChromiumWebViewLifecycleTests",
+            "scripts/cli.swift unit",
+            "scripts/cli.swift unit ChromiumWebViewLifecycleTests",
         ]
     ),
     Subcommand(
@@ -201,7 +201,7 @@ let subcommands: [Subcommand] = [
         Package.swift, verifies its sha256, and compiles the wrapper sources.
         Mirrors the swift-build job in .github/workflows/ci.yml.
         """,
-        examples: ["scripts/tests.swift build"]
+        examples: ["scripts/cli.swift build"]
     ) { _ in swiftBuildRelease() },
     Subcommand(
         name: "xcode",
@@ -212,7 +212,7 @@ let subcommands: [Subcommand] = [
         installed, as CI does), then builds it for arm64. Mirrors the
         xcode-build-hellocef job in .github/workflows/ci.yml.
         """,
-        examples: ["scripts/tests.swift xcode"]
+        examples: ["scripts/cli.swift xcode"]
     ) { _ in xcodeBuildExample() },
     Subcommand(
         name: "ci",
@@ -223,7 +223,7 @@ let subcommands: [Subcommand] = [
         stopping at the first failure. CI itself does not run tests; use the
         `ui` / `unit` commands for those.
         """,
-        examples: ["scripts/tests.swift ci"]
+        examples: ["scripts/cli.swift ci"]
     ) { _ in
         let build = swiftBuildRelease()
         if build != 0 { return build }
@@ -235,10 +235,10 @@ let subcommands: [Subcommand] = [
 
 func printTopLevelHelp() {
     print("""
-    tests.swift — typed test runner for ChromiumKit.
+    cli.swift — typed dev runner for ChromiumKit.
 
     USAGE
-      scripts/tests.swift <command> [args]
+      scripts/cli.swift <command> [args]
 
     COMMANDS
     """)
@@ -249,7 +249,7 @@ func printTopLevelHelp() {
     }
     print("""
 
-    Run 'scripts/tests.swift <command> --help' for details on a command.
+    Run 'scripts/cli.swift <command> --help' for details on a command.
     The first run fetches CEF (~265MB) into vendor/cef/; later runs reuse it.
     """)
 }
@@ -272,7 +272,7 @@ if first == "-h" || first == "--help" || first == "help" {
 }
 
 guard let cmd = subcommands.first(where: { $0.name == first }) else {
-    FileHandle.standardError.write(Data("error: unknown command '\(first)' (try: scripts/tests.swift --help)\n".utf8))
+    FileHandle.standardError.write(Data("error: unknown command '\(first)' (try: scripts/cli.swift --help)\n".utf8))
     exit(2)
 }
 
