@@ -1,29 +1,32 @@
 import SwiftUI
 
 struct TabRow: View {
-    let tab: BrowserTab
+    let tab: TabRecord
+    @Environment(TabRuntime.self) private var runtime
 
     var body: some View {
+        let webView = runtime.liveWebView(for: tab)
+        let awake = webView != nil
         HStack(spacing: 6) {
             FaviconView(image: tab.displayFavicon)
-            if let webView = tab.webView, webView.observable.isLoading {
+            if let webView, webView.observable.isLoading {
                 ProgressView().controlSize(.small)
             }
             Text(tab.displayTitle)
                 .lineLimit(1)
                 .truncationMode(.tail)
-            if tab.isHibernated {
+            if !awake {
                 Image(systemName: "moon.zzz.fill")
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("tabRow.hibernatedBadge")
             }
         }
-        .opacity(tab.isHibernated ? 0.55 : 1)
+        .opacity(awake ? 1 : 0.55)
         .contextMenu {
-            if tab.isHibernated {
-                Button("Wake up") { tab.wake() }
+            if awake {
+                Button("Hibernate") { runtime.hibernate(tab) }
             } else {
-                Button("Hibernate") { tab.hibernate() }
+                Button("Wake up") { runtime.wake(tab) }
             }
         }
     }
