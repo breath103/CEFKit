@@ -109,6 +109,21 @@ This makes tabs **lazy**: on relaunch every tab is hibernated until selected, so
 only the active tab spins up a Chromium browser — a strict improvement over
 today's "all tabs live."
 
+### Closing a tab is a deletion the runtime reacts to
+
+Closing a tab is **deleting its `TabRecord` from the store** (`TabRow`'s context
+menu calls `modelContext.delete(tab)`) — nothing more. The release of the live
+`ChromiumWebView` is **not** wired into that action; it's a reaction to the
+database changing. `TabRuntime.reconcileLiveTabs()` observes `session.orderedTabs`
+via `withObservationTracking` and, on every change, drops any `LiveTab` whose
+record no longer exists (tearing down the web view + its KVO observers) and moves
+`selectedTabID` off a deleted tab. It re-arms itself after each change.
+
+This keeps the database as the single source of truth: *any* path that removes a
+record — the close button, a future multi-window sync, a debug action — frees the
+connected web view automatically. There is no imperative `close()` that a caller
+must remember to route the release through.
+
 ### Views
 
 - `ContentView`: holds the current `Session` (passed in), reads

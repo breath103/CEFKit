@@ -40,4 +40,30 @@ final class SessionPersistenceTests: XCTestCase {
         let tab = TabRecord(url: URL(string: "https://news.example/path")!, title: "", sortIndex: 0)
         XCTAssertEqual(tab.displayTitle, "news.example")
     }
+
+    /// Deleting a tab record drops it from the session, and the runtime reacts by
+    /// moving selection off the deleted tab — without anyone calling a close().
+    func testDeletingSelectedTabReactivelyMovesSelection() throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+
+        let session = Session()
+        context.insert(session)
+        let first = TabRecord(url: URL(string: "https://a.example")!, sortIndex: 0, session: session)
+        let second = TabRecord(url: URL(string: "https://b.example")!, sortIndex: 1, session: session)
+        context.insert(first)
+        context.insert(second)
+        session.selectedTabID = second.id
+
+        let runtime = TabRuntime()
+        runtime.context = context
+        runtime.session = session
+
+        // Closing = deleting the record from the store.
+        context.delete(second)
+        runtime.reconcileLiveTabs()
+
+        XCTAssertEqual(session.tabs.count, 1)
+        XCTAssertEqual(session.selectedTabID, first.id, "selection should react to the deletion")
+    }
 }

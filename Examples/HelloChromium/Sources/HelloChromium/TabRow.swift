@@ -1,8 +1,10 @@
+import SwiftData
 import SwiftUI
 
 struct TabRow: View {
     let tab: TabRecord
     @Environment(TabRuntime.self) private var runtime
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         let webView = runtime.liveWebView(for: tab)
@@ -28,6 +30,11 @@ struct TabRow: View {
             } else {
                 Button("Wake up") { runtime.wake(tab) }
             }
+            Divider()
+            // Closing a tab is just deleting its record; TabRuntime reacts to the
+            // deletion and releases the live web view (see reconcileLiveTabs).
+            Button("Close tab", role: .destructive) { modelContext.delete(tab) }
+                .accessibilityIdentifier("tabRow.close")
         }
     }
 }

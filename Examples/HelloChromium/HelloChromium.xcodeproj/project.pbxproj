@@ -26,6 +26,7 @@
 		D7426D5E4F87360F1FD3D462 /* ChromiumKit in Frameworks */ = {isa = PBXBuildFile; productRef = 037BEB1370BFFDAE031D2C8C /* ChromiumKit */; };
 		E06B5C396C4B5412F93B0002 /* AddressBarUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3769D4A4BBF4081DEEB360F8 /* AddressBarUITests.swift */; };
 		EC43D48F466175B07EE4C768 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C7A782B377BE86BE58CBA52 /* AppDelegate.swift */; };
+		EDC3145BE1110805F3FFC6A9 /* CloseTabUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B5F79F7A11BA0D22EEBACE /* CloseTabUITests.swift */; };
 		F0B1BF62BA2DC49E7DF7F42E /* ChromiumKit in Frameworks */ = {isa = PBXBuildFile; productRef = BE93FC28F7EE9EA0E74717CD /* ChromiumKit */; };
 /* End PBXBuildFile section */
 
@@ -65,6 +66,7 @@
 		4C7A782B377BE86BE58CBA52 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		577D679024A9B7392AD41FE4 /* TabRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRow.swift; sourceTree = "<group>"; };
 		58DA3435E60414F542BCDB9C /* HelloChromiumUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HelloChromiumUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		66B5F79F7A11BA0D22EEBACE /* CloseTabUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseTabUITests.swift; sourceTree = "<group>"; };
 		6BECFC2C56E8CF9CFF4CFCBD /* HibernateTabUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HibernateTabUITests.swift; sourceTree = "<group>"; };
 		881F558F15D54F2A41B899C4 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		8DF6B8A0F2F76CEC5D1D2DF5 /* HelloChromium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloChromium.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -190,6 +192,7 @@
 			isa = PBXGroup;
 			children = (
 				3769D4A4BBF4081DEEB360F8 /* AddressBarUITests.swift */,
+				66B5F79F7A11BA0D22EEBACE /* CloseTabUITests.swift */,
 				6BECFC2C56E8CF9CFF4CFCBD /* HibernateTabUITests.swift */,
 				8FB93733505C2EF98CFD7D92 /* SessionRestoreUITests.swift */,
 				9D34E1231CD61E09EA5AD83B /* TargetBlankUITests.swift */,
@@ -387,6 +390,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E06B5C396C4B5412F93B0002 /* AddressBarUITests.swift in Sources */,
+				EDC3145BE1110805F3FFC6A9 /* CloseTabUITests.swift in Sources */,
 				A81D640762B70FB9A1EF66F5 /* HibernateTabUITests.swift in Sources */,
 				14263BBA163458010FFFAA7B /* SessionRestoreUITests.swift in Sources */,
 				C0AF10B2D7F05B6CD4B22E7C /* TargetBlankUITests.swift in Sources */,

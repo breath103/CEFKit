@@ -44,6 +44,28 @@ final class TabRuntime: NSObject {
         live[record.id] = nil
     }
 
+    /// React to the store: release any live web view whose `TabRecord` has left
+    /// the session, and move selection off a deleted tab. Closing a tab is just
+    /// deleting its record — this is the single place that observes that and
+    /// frees the connected `ChromiumWebView` (+ its KVO observers), so there's no
+    /// imperative release path a caller has to remember. Re-arms itself on every
+    /// change to the session's tabs.
+    func reconcileLiveTabs() {
+        let tabs = withObservationTracking {
+            session.orderedTabs
+        } onChange: { [weak self] in
+            Task { @MainActor in self?.reconcileLiveTabs() }
+        }
+        // Mutations live OUTSIDE the tracking closure so they don't re-trigger it.
+        let existingIDs = Set(tabs.map(\.id))
+        for id in live.keys where !existingIDs.contains(id) {
+            live[id] = nil
+        }
+        if let selected = session.selectedTabID, !existingIDs.contains(selected) {
+            session.selectedTabID = tabs.last?.id
+        }
+    }
+
     /// Open a new foreground tab in the session and select it.
     @discardableResult
     func newTab(in session: Session, url: URL = URL(string: "https://example.com")!) -> TabRecord {

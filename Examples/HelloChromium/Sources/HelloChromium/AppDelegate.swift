@@ -31,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let session = restoreOrSeedSession()
         runtime.context = container.mainContext
         runtime.session = session
+        runtime.reconcileLiveTabs() // start reacting to tab deletions
 
         window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1200, height: 800),
