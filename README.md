@@ -172,6 +172,11 @@ use `ui` / `unit` for those.) The first run does a one-time ~265MB CEF
 download; subsequent runs reuse `vendor/cef/`. UI tests need a real GUI login
 session (they drive an app window).
 
+If the CEF Keychain ("Chromium Safe Storage") or the XCTest automation prompt
+keeps reappearing on every run, that's ad-hoc signing — see
+[`documents/code-signing.md`](documents/code-signing.md) for a one-time
+`scripts/make-signing-identity.sh` setup that makes the grants stick.
+
 ## Linting
 
 ```sh

@@ -48,6 +48,39 @@ func ensureCEF() -> Int32 {
     return run("/bin/bash", [fetchScript.path])
 }
 
+/// Load `KEY=VALUE` pairs from a `.env` at the repo root into the environment,
+/// without overwriting variables already set by the shell/CI (those win). Lets
+/// developers keep `CHROMIUMKIT_SIGN_IDENTITY` local and untracked. See
+/// documents/code-signing.md.
+func loadDotEnv() {
+    let envFile = root.appendingPathComponent(".env")
+    guard let contents = try? String(contentsOf: envFile, encoding: .utf8) else { return }
+    for rawLine in contents.split(separator: "\n", omittingEmptySubsequences: true) {
+        let line = rawLine.trimmingCharacters(in: .whitespaces)
+        if line.isEmpty || line.hasPrefix("#") { continue }
+        guard let eq = line.firstIndex(of: "=") else { continue }
+        let key = line[..<eq].trimmingCharacters(in: .whitespaces)
+        var value = line[line.index(after: eq)...].trimmingCharacters(in: .whitespaces)
+        if value.count >= 2, let f = value.first, (f == "\"" || f == "'"), value.last == f {
+            value = String(value.dropFirst().dropLast())
+        }
+        if key.isEmpty { continue }
+        setenv(key, value, 0) // 0 = don't overwrite an already-set variable
+    }
+}
+
+/// Code-signing args for xcodebuild. Defaults to ad-hoc ("-") so CI and fresh
+/// checkouts work with no setup. Set `CHROMIUMKIT_SIGN_IDENTITY` (in `.env` or
+/// the environment) to a stable local identity (e.g. a self-signed
+/// "ChromiumKit Local" cert from scripts/make-signing-identity.sh) and macOS
+/// keeps your Keychain "Always Allow" and XCTest automation grants across
+/// rebuilds — ad-hoc signing gets a fresh identity every build, so those grants
+/// re-prompt forever otherwise.
+func signingArgs() -> [String] {
+    let identity = ProcessInfo.processInfo.environment["CHROMIUMKIT_SIGN_IDENTITY"] ?? "-"
+    return ["CODE_SIGN_STYLE=Manual", "CODE_SIGN_IDENTITY=\(identity)"]
+}
+
 /// Build + run one test target, optionally narrowed to a `Class` or `Class/method`.
 func xcodebuildTest(target: String, filter: String?) -> Int32 {
     if case let code = ensureCEF(), code != 0 { return code }
@@ -59,7 +92,7 @@ func xcodebuildTest(target: String, filter: String?) -> Int32 {
         "-scheme", "HelloChromium",
         "-destination", "platform=macOS",
         "-only-testing:\(onlyTesting)",
-    ])
+    ] + signingArgs())
 }
 
 /// Locate an executable on PATH (like `which`). Returns its path, or nil if absent.
@@ -253,6 +286,8 @@ func printTopLevelHelp() {
     The first run fetches CEF (~265MB) into vendor/cef/; later runs reuse it.
     """)
 }
+
+loadDotEnv()
 
 let argv = Array(CommandLine.arguments.dropFirst())
 
