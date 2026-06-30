@@ -59,8 +59,11 @@ final class SessionPersistenceTests: XCTestCase {
         runtime.context = context
         runtime.session = session
 
-        // Closing = deleting the record from the store.
+        // Closing = deleting the record from the store. The relationship updates
+        // when the change is processed; in the app that's autosave, then the
+        // observation fires reconcile. Mirror that ordering here.
         context.delete(second)
+        try context.save()
         runtime.reconcileLiveTabs()
 
         XCTAssertEqual(session.tabs.count, 1)

@@ -18,6 +18,13 @@ Keychain or XCTest prompt keeps reappearing "every few minutes," this is why.
 The fix is a **stable signing identity**. Grant the prompts once; they persist
 across rebuilds because the identity no longer changes.
 
+> **Note on the CEF Keychain prompt specifically.** HelloChromium starts CEF
+> with `ChromiumConfiguration.useMockKeychain = true`, which makes Chromium skip
+> the macOS Keychain for safe storage — so the "Chromium Safe Storage" prompt
+> doesn't appear at all, regardless of signing. The signing setup below is
+> therefore mainly for the **XCTest automation / accessibility** and
+> **developer-tools** TCC prompts, which mock-keychain does not affect.
+
 ## Nothing here is committed
 
 The repo default stays ad-hoc (`"-"`) so a fresh clone and CI build with **zero
