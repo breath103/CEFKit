@@ -61,7 +61,7 @@ func loadDotEnv() {
         guard let eq = line.firstIndex(of: "=") else { continue }
         let key = line[..<eq].trimmingCharacters(in: .whitespaces)
         var value = line[line.index(after: eq)...].trimmingCharacters(in: .whitespaces)
-        if value.count >= 2, let f = value.first, (f == "\"" || f == "'"), value.last == f {
+        if value.count >= 2, let f = value.first, f == "\"" || f == "'", value.last == f {
             value = String(value.dropFirst().dropLast())
         }
         if key.isEmpty { continue }
@@ -91,7 +91,7 @@ func xcodebuildTest(target: String, filter: String?) -> Int32 {
         "-project", project.path,
         "-scheme", "HelloChromium",
         "-destination", "platform=macOS",
-        "-only-testing:\(onlyTesting)",
+        "-only-testing:\(onlyTesting)"
     ] + signingArgs())
 }
 
@@ -140,7 +140,7 @@ func xcodeBuildExample() -> Int32 {
         "ONLY_ACTIVE_ARCH=YES",
         "CODE_SIGN_STYLE=Manual",
         "CODE_SIGN_IDENTITY=-",
-        "build",
+        "build"
     ], cwd: hello)
 }
 
@@ -148,9 +148,9 @@ func xcodeBuildExample() -> Int32 {
 
 struct Subcommand {
     let name: String
-    let summary: String        // one line, shown in the top-level list
-    let usage: String          // argument shape, shown in `<cmd> --help`
-    let discussion: String     // longer help body
+    let summary: String // one line, shown in the top-level list
+    let usage: String // argument shape, shown in `<cmd> --help`
+    let discussion: String // longer help body
     let examples: [String]
     let run: (_ args: [String]) -> Int32
 
@@ -168,7 +168,9 @@ struct Subcommand {
 
         EXAMPLES
         """)
-        for ex in examples { print("  \(ex)") }
+        for ex in examples {
+            print("  \(ex)")
+        }
     }
 }
 
@@ -212,7 +214,7 @@ let subcommands: [Subcommand] = [
         examples: [
             "scripts/cli.swift ui",
             "scripts/cli.swift ui AddressBarUITests",
-            "scripts/cli.swift ui AddressBarUITests/testEscapeCancelsEdit",
+            "scripts/cli.swift ui AddressBarUITests/testEscapeCancelsEdit"
         ]
     ),
     testSubcommand(
@@ -222,7 +224,7 @@ let subcommands: [Subcommand] = [
         suiteHint: "Lifecycle/retain-cycle checks that don't drive the app window.",
         examples: [
             "scripts/cli.swift unit",
-            "scripts/cli.swift unit ChromiumWebViewLifecycleTests",
+            "scripts/cli.swift unit ChromiumWebViewLifecycleTests"
         ]
     ),
     Subcommand(
@@ -261,7 +263,7 @@ let subcommands: [Subcommand] = [
         let build = swiftBuildRelease()
         if build != 0 { return build }
         return xcodeBuildExample()
-    },
+    }
 ]
 
 // MARK: - Top-level dispatch

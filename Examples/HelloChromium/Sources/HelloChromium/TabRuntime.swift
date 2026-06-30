@@ -14,7 +14,10 @@ import SwiftData
 @MainActor
 @Observable
 final class TabRuntime: NSObject {
-    private var live: [PersistentIdentifier: LiveTab] = [:]
+    // Keyed by the record's own UUID, not its `persistentModelID`: SwiftData
+    // swaps a newly-inserted model's temporary identifier for a permanent one on
+    // the next save, which would orphan a live web view registered before then.
+    private var live: [UUID: LiveTab] = [:]
 
     /// Set once at launch. The context new tabs (incl. popups) are inserted into.
     @ObservationIgnored var context: ModelContext!
@@ -24,28 +27,21 @@ final class TabRuntime: NSObject {
     /// The live web view for a record, or nil if the tab is hibernated. Pure
     /// lookup — safe to call from a SwiftUI view body.
     func liveWebView(for record: TabRecord) -> ChromiumWebView? {
-        live[record.persistentModelID]?.webView
-    }
-
-    func isAwake(_ record: TabRecord) -> Bool {
-        live[record.persistentModelID] != nil
+        live[record.id]?.webView
     }
 
     /// Wake a tab: create its web view (loading the record's URL) if absent, and
     /// start syncing navigation back into the record. Idempotent.
     @discardableResult
     func wake(_ record: TabRecord) -> ChromiumWebView {
-        if let existing = live[record.persistentModelID] { return existing.webView }
-        let webView = ChromiumWebView(frame: .zero, url: record.url)
-        webView.navigationDelegate = self
-        live[record.persistentModelID] = LiveTab(webView: webView, record: record)
-        return webView
+        if let existing = live[record.id] { return existing.webView }
+        return register(ChromiumWebView(frame: .zero, url: record.url), for: record)
     }
 
     /// Hibernate a tab: drop the live web view. The record keeps the last
     /// url/title/favicon, so the row still renders and a later `wake` restores it.
     func hibernate(_ record: TabRecord) {
-        live[record.persistentModelID] = nil
+        live[record.id] = nil
     }
 
     /// Open a new foreground tab in the session and select it.
@@ -63,10 +59,13 @@ final class TabRuntime: NSObject {
         return record
     }
 
-    /// Adopt an already-built web view (a popup shell) for a record.
-    private func adopt(_ webView: ChromiumWebView, for record: TabRecord) {
+    /// Register a web view (freshly created, or an adopted popup shell) as the
+    /// live view for a record and start syncing navigation into it.
+    @discardableResult
+    private func register(_ webView: ChromiumWebView, for record: TabRecord) -> ChromiumWebView {
         webView.navigationDelegate = self
-        live[record.persistentModelID] = LiveTab(webView: webView, record: record)
+        live[record.id] = LiveTab(webView: webView, record: record)
+        return webView
     }
 
     /// A live web view plus the KVO observations that mirror its navigation
@@ -118,7 +117,7 @@ extension TabRuntime: ChromiumNavigationDelegate {
             let shell = ChromiumWebView.popupView()
             let target = url ?? URL(string: "about:blank")!
             let record = insertTab(url: target, into: session)
-            adopt(shell, for: record)
+            register(shell, for: record)
             if disposition == .newForegroundTab {
                 session.selectedTabID = record.id
             }

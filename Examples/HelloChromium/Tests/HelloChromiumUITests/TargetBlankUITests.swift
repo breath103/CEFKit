@@ -25,7 +25,8 @@ final class TargetBlankUITests: XCTestCase {
         let initialRowCount = outline.outlineRows.count
 
         let fixtureURL = try XCTUnwrap(Bundle(for: type(of: self))
-            .url(forResource: "target-blank", withExtension: "html"))
+            .url(forResource: "target-blank", withExtension: "html")
+        )
 
         // Navigate the selected tab to the fixture.
         let display = app.buttons["addressBar.display"]
