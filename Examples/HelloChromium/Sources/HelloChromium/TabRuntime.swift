@@ -51,12 +51,20 @@ final class TabRuntime: NSObject {
     /// imperative release path a caller has to remember. Re-arms itself on every
     /// change to the session's tabs.
     func reconcileLiveTabs() {
+        // Read (and track) the tabs inside the tracking closure; do the mutations
+        // outside it via reconcile(against:) so they don't re-trigger the observer.
         let tabs = withObservationTracking {
             session.orderedTabs
         } onChange: { [weak self] in
             Task { @MainActor in self?.reconcileLiveTabs() }
         }
-        // Mutations live OUTSIDE the tracking closure so they don't re-trigger it.
+        reconcile(against: tabs)
+    }
+
+    /// Release live web views whose record is not in `tabs`, and move selection
+    /// off a tab that's gone. Split out from the observation arming above so the
+    /// logic is unit-testable without installing a long-lived observer.
+    func reconcile(against tabs: [TabRecord]) {
         let existingIDs = Set(tabs.map(\.id))
         for id in live.keys where !existingIDs.contains(id) {
             live[id] = nil

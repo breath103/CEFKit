@@ -17,6 +17,7 @@
 		446F52DF19C54D2E9F785E9F /* ChromiumKitHelper in Frameworks */ = {isa = PBXBuildFile; productRef = E0F832576918A7FD07E65BE6 /* ChromiumKitHelper */; };
 		5F5AFF0CF6D6BF46CFBAC90A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C5EC6E298E46D61258BD5DF /* ContentView.swift */; };
 		5F6FFCAC32D127C05B7D5E4D /* AddressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019198A6EB285695BC5882C5 /* AddressBar.swift */; };
+		6E0D96AC970B75EA0AC91374 /* ChromiumConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7752C1846282F40BAA4FCC47 /* ChromiumConfigurationTests.swift */; };
 		881102DFE6B909FA0C50F735 /* ChromiumWebViewLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CE582A3A8C0675233A14D /* ChromiumWebViewLifecycleTests.swift */; };
 		A81D640762B70FB9A1EF66F5 /* HibernateTabUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BECFC2C56E8CF9CFF4CFCBD /* HibernateTabUITests.swift */; };
 		ABB59D041F2E1CA61897C2BE /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881F558F15D54F2A41B899C4 /* Session.swift */; };
@@ -28,6 +29,7 @@
 		EC43D48F466175B07EE4C768 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C7A782B377BE86BE58CBA52 /* AppDelegate.swift */; };
 		EDC3145BE1110805F3FFC6A9 /* CloseTabUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B5F79F7A11BA0D22EEBACE /* CloseTabUITests.swift */; };
 		F0B1BF62BA2DC49E7DF7F42E /* ChromiumKit in Frameworks */ = {isa = PBXBuildFile; productRef = BE93FC28F7EE9EA0E74717CD /* ChromiumKit */; };
+		FD51A6A8C643F14C62410446 /* TabRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D43F9C9B64F414197C73A9 /* TabRuntimeTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +58,7 @@
 
 /* Begin PBXFileReference section */
 		019198A6EB285695BC5882C5 /* AddressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBar.swift; sourceTree = "<group>"; };
+		01D43F9C9B64F414197C73A9 /* TabRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabRuntimeTests.swift; sourceTree = "<group>"; };
 		025FF931F7B55DC5EA53CB54 /* FaviconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconView.swift; sourceTree = "<group>"; };
 		0325FC5EFECDA6F6C44308E8 /* SessionPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPersistenceTests.swift; sourceTree = "<group>"; };
 		1A7145DFDB39E43A7CC2BAAE /* ChromiumKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ChromiumKit; path = ../..; sourceTree = SOURCE_ROOT; };
@@ -68,6 +71,7 @@
 		58DA3435E60414F542BCDB9C /* HelloChromiumUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HelloChromiumUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		66B5F79F7A11BA0D22EEBACE /* CloseTabUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseTabUITests.swift; sourceTree = "<group>"; };
 		6BECFC2C56E8CF9CFF4CFCBD /* HibernateTabUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HibernateTabUITests.swift; sourceTree = "<group>"; };
+		7752C1846282F40BAA4FCC47 /* ChromiumConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromiumConfigurationTests.swift; sourceTree = "<group>"; };
 		881F558F15D54F2A41B899C4 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		8DF6B8A0F2F76CEC5D1D2DF5 /* HelloChromium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloChromium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FB93733505C2EF98CFD7D92 /* SessionRestoreUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRestoreUITests.swift; sourceTree = "<group>"; };
@@ -155,8 +159,10 @@
 		3B284F6E1090FC8C71D8932F /* HelloChromiumUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				7752C1846282F40BAA4FCC47 /* ChromiumConfigurationTests.swift */,
 				B13CE582A3A8C0675233A14D /* ChromiumWebViewLifecycleTests.swift */,
 				0325FC5EFECDA6F6C44308E8 /* SessionPersistenceTests.swift */,
+				01D43F9C9B64F414197C73A9 /* TabRuntimeTests.swift */,
 			);
 			path = HelloChromiumUnitTests;
 			sourceTree = "<group>";
@@ -401,8 +407,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E0D96AC970B75EA0AC91374 /* ChromiumConfigurationTests.swift in Sources */,
 				881102DFE6B909FA0C50F735 /* ChromiumWebViewLifecycleTests.swift in Sources */,
 				145A11B761BFF5525B60E20F /* SessionPersistenceTests.swift in Sources */,
+				FD51A6A8C643F14C62410446 /* TabRuntimeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,3 +1,4 @@
+import AppKit
 @testable import HelloChromium
 import SwiftData
 import XCTest
@@ -36,9 +37,55 @@ final class SessionPersistenceTests: XCTestCase {
         XCTAssertEqual(refetched.orderedTabs.first?.url, URL(string: "https://a.example"))
     }
 
+    func testOrderedTabsSortsBySortIndex() throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let session = Session()
+        context.insert(session)
+        // Insert out of order.
+        for index in [2, 0, 1] {
+            context.insert(TabRecord(url: URL(string: "https://\(index).example")!, sortIndex: index, session: session))
+        }
+        XCTAssertEqual(session.orderedTabs.map(\.sortIndex), [0, 1, 2])
+    }
+
+    func testDisplayTitleUsesTitleWhenPresent() {
+        let tab = TabRecord(url: URL(string: "https://news.example")!, title: "Front Page", sortIndex: 0)
+        XCTAssertEqual(tab.displayTitle, "Front Page")
+    }
+
     func testDisplayTitleFallsBackToHost() {
         let tab = TabRecord(url: URL(string: "https://news.example/path")!, title: "", sortIndex: 0)
         XCTAssertEqual(tab.displayTitle, "news.example")
+    }
+
+    func testDisplayTitleFallsBackToPlaceholderWithoutHost() {
+        let tab = TabRecord(url: URL(string: "about:blank")!, title: "", sortIndex: 0)
+        XCTAssertEqual(tab.displayTitle, "new tab")
+    }
+
+    func testDisplayFaviconDecodesPNGAndRejectsGarbage() {
+        let noData = TabRecord(url: URL(string: "https://a.example")!, sortIndex: 0)
+        XCTAssertNil(noData.displayFavicon)
+
+        let garbage = TabRecord(url: URL(string: "https://a.example")!, sortIndex: 0)
+        garbage.faviconPNG = Data([0x00, 0x01, 0x02, 0x03])
+        XCTAssertNil(garbage.displayFavicon, "invalid bytes should not decode to an image")
+
+        let valid = TabRecord(url: URL(string: "https://a.example")!, sortIndex: 0)
+        valid.faviconPNG = Self.makePNG()
+        XCTAssertNotNil(valid.displayFavicon)
+    }
+
+    /// A tiny real PNG so displayFavicon has something valid to decode.
+    private static func makePNG() -> Data {
+        let image = NSImage(size: NSSize(width: 2, height: 2))
+        image.lockFocus()
+        NSColor.red.setFill()
+        NSRect(x: 0, y: 0, width: 2, height: 2).fill()
+        image.unlockFocus()
+        let tiff = image.tiffRepresentation!
+        return NSBitmapImageRep(data: tiff)!.representation(using: .png, properties: [:])!
     }
 
     /// Deleting a tab record drops it from the session, and the runtime reacts by
@@ -64,7 +111,7 @@ final class SessionPersistenceTests: XCTestCase {
         // observation fires reconcile. Mirror that ordering here.
         context.delete(second)
         try context.save()
-        runtime.reconcileLiveTabs()
+        runtime.reconcile(against: session.orderedTabs)
 
         XCTAssertEqual(session.tabs.count, 1)
         XCTAssertEqual(session.selectedTabID, first.id, "selection should react to the deletion")
