@@ -72,7 +72,11 @@ struct AddressBar: View {
         guard let tab else { return }
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        let withScheme = trimmed.contains("://") ? trimmed : "https://\(trimmed)"
+        let hasScheme = trimmed.contains("://")
+            || trimmed.hasPrefix("javascript:")
+            || trimmed.hasPrefix("data:")
+            || trimmed.hasPrefix("about:")
+        let withScheme = hasScheme ? trimmed : "https://\(trimmed)"
         guard let url = URL(string: withScheme) else { return }
         if tab.isHibernated {
             tab.wake(loading: url)

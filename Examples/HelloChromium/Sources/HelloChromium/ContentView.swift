@@ -54,14 +54,21 @@ private struct JSDialogSheet: View {
             HStack {
                 Spacer()
                 if case .alert = dialog.kind {
-                    Button("OK") { dialog.respond(.ok) }.keyboardShortcut(.defaultAction)
+                    Button("OK") { dialog.respond(.ok) }
+                        .keyboardShortcut(.defaultAction)
+                        .accessibilityIdentifier("jsDialog.ok")
                 } else {
-                    Button("Cancel") { dialog.respond(.cancel) }.keyboardShortcut(.cancelAction)
+                    Button("Cancel") { dialog.respond(.cancel) }
+                        .keyboardShortcut(.cancelAction)
+                        .accessibilityIdentifier("jsDialog.cancel")
                     if case .prompt = dialog.kind {
                         Button("OK") { dialog.respond(.okWithText(dialog.promptText)) }
                             .keyboardShortcut(.defaultAction)
+                            .accessibilityIdentifier("jsDialog.ok")
                     } else {
-                        Button("OK") { dialog.respond(.ok) }.keyboardShortcut(.defaultAction)
+                        Button("OK") { dialog.respond(.ok) }
+                            .keyboardShortcut(.defaultAction)
+                            .accessibilityIdentifier("jsDialog.ok")
                     }
                 }
             }
