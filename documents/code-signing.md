@@ -62,10 +62,11 @@ cp .env.example .env
 # edit .env →  CHROMIUMKIT_SIGN_IDENTITY="ChromiumKit Local"
 ```
 
-`.env` is gitignored. `scripts/cli.swift` loads it on startup and forwards the
-value to `xcodebuild` as `CODE_SIGN_IDENTITY` (`signingArgs()`). A shell
-`export CHROMIUMKIT_SIGN_IDENTITY=...` works too and takes precedence over
-`.env`.
+`.env` is gitignored. **Loading it is your shell's job, not the script's** — use
+[direnv](https://direnv.net) (`direnv allow`), source it (`set -a; source .env;
+set +a`), or just `export CHROMIUMKIT_SIGN_IDENTITY=...` in your profile.
+`scripts/cli.swift` only *reads* `CHROMIUMKIT_SIGN_IDENTITY` from the environment
+and forwards it to `xcodebuild` as `CODE_SIGN_IDENTITY` (`signingArgs()`).
 
 ### 3. Grant the prompts one last time
 
