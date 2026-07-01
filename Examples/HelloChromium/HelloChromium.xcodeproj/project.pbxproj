@@ -16,6 +16,7 @@
 		5F5AFF0CF6D6BF46CFBAC90A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C5EC6E298E46D61258BD5DF /* ContentView.swift */; };
 		5F6FFCAC32D127C05B7D5E4D /* AddressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019198A6EB285695BC5882C5 /* AddressBar.swift */; };
 		5F8531834B35311B7FB29ECE /* BrowserTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B33A993DDA01CEC8357AAC9 /* BrowserTab.swift */; };
+		7909A743FCF64161D2DF2D65 /* JSDialogUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F12B9FA73F1F8D3641F054B /* JSDialogUITests.swift */; };
 		881102DFE6B909FA0C50F735 /* ChromiumWebViewLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CE582A3A8C0675233A14D /* ChromiumWebViewLifecycleTests.swift */; };
 		A5018A371ADA7713169110BD /* TabStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35D5557D3343760F80DFAFE /* TabStore.swift */; };
 		A81D640762B70FB9A1EF66F5 /* HibernateTabUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BECFC2C56E8CF9CFF4CFCBD /* HibernateTabUITests.swift */; };
@@ -55,6 +56,7 @@
 		025FF931F7B55DC5EA53CB54 /* FaviconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconView.swift; sourceTree = "<group>"; };
 		1C5EC6E298E46D61258BD5DF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1EC12FB453CC0FBE23076850 /* HelloChromiumHelper */ = {isa = PBXFileReference; includeInIndex = 0; path = HelloChromiumHelper; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F12B9FA73F1F8D3641F054B /* JSDialogUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSDialogUITests.swift; sourceTree = "<group>"; };
 		308A11D0A65EF09023238119 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		3769D4A4BBF4081DEEB360F8 /* AddressBarUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarUITests.swift; sourceTree = "<group>"; };
 		3B33A993DDA01CEC8357AAC9 /* BrowserTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTab.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 			children = (
 				3769D4A4BBF4081DEEB360F8 /* AddressBarUITests.swift */,
 				6BECFC2C56E8CF9CFF4CFCBD /* HibernateTabUITests.swift */,
+				1F12B9FA73F1F8D3641F054B /* JSDialogUITests.swift */,
 				9D34E1231CD61E09EA5AD83B /* TargetBlankUITests.swift */,
 				FCFA6FA26182F776773E5D1A /* fixtures */,
 			);
@@ -379,6 +382,7 @@
 			files = (
 				E06B5C396C4B5412F93B0002 /* AddressBarUITests.swift in Sources */,
 				A81D640762B70FB9A1EF66F5 /* HibernateTabUITests.swift in Sources */,
+				7909A743FCF64161D2DF2D65 /* JSDialogUITests.swift in Sources */,
 				C0AF10B2D7F05B6CD4B22E7C /* TargetBlankUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

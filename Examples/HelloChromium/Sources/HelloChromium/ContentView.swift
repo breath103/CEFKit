@@ -33,5 +33,47 @@ struct ContentView: View {
                 }
             }
         }
+        .sheet(item: $store.pendingDialog) { dialog in
+            JSDialogSheet(dialog: dialog)
+        }
+    }
+}
+
+private struct JSDialogSheet: View {
+    @Bindable var dialog: PendingDialog
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let host = dialog.origin?.host {
+                Text(host).font(.caption).foregroundStyle(.secondary)
+            }
+            Text(dialog.message).font(.body)
+            if case .prompt = dialog.kind {
+                TextField("", text: $dialog.promptText).textFieldStyle(.roundedBorder)
+            }
+            HStack {
+                Spacer()
+                if case .alert = dialog.kind {
+                    Button("OK") { dialog.respond(.ok) }
+                        .keyboardShortcut(.defaultAction)
+                        .accessibilityIdentifier("jsDialog.ok")
+                } else {
+                    Button("Cancel") { dialog.respond(.cancel) }
+                        .keyboardShortcut(.cancelAction)
+                        .accessibilityIdentifier("jsDialog.cancel")
+                    if case .prompt = dialog.kind {
+                        Button("OK") { dialog.respond(.okWithText(dialog.promptText)) }
+                            .keyboardShortcut(.defaultAction)
+                            .accessibilityIdentifier("jsDialog.ok")
+                    } else {
+                        Button("OK") { dialog.respond(.ok) }
+                            .keyboardShortcut(.defaultAction)
+                            .accessibilityIdentifier("jsDialog.ok")
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 360)
     }
 }
